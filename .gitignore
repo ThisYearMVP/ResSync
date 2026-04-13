@@ -1,0 +1,22 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+*.xcuserdatad
+*.xccheckout
+*.xcscheme
+*.xscheduleresults
+*.moved-aside
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+
+# Swift Package Manager
+.build/
+.swiftpm/xcode/package.xcresult/
+
+# macOS
+.DS_Store
+
+# Supabase (si vous stockez des clés localement)
+.env
+*.env

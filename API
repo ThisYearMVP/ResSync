@@ -1,1 +1,233 @@
 ## Création des APIS associées aux TER, Train 1ère classe, avion
+
+
+## API SNCF
+"""
+Récupération de la planification des trains TGV en France
+API utilisée : SNCF / Navitia (https://api.sncf.com)
+
+Prérequis :
+    pip install requests pandas tabulate
+
+Clé API gratuite à obtenir sur :
+    https://numerique.sncf.com/startup/api/
+"""
+
+import requests
+import pandas as pd
+from datetime import datetime, timedelta
+from tabulate import tabulate
+import sys
+import time
+
+# ─────────────────────────────────────────────
+#  CONFIGURATION
+# ─────────────────────────────────────────────
+API_KEY = "57f5491f-525d-4dc2-a867-e9cfab1738d3"   # ← remplacez par votre clé
+BASE_URL = "https://api.sncf.com/v1/coverage/sncf"
+
+# Principales gares TGV (stop_area URI Navitia)
+GARES_TGV = {
+    "Paris Gare de Lyon":    "stop_area:SNCF:87686006",
+    "Paris Montparnasse":    "stop_area:SNCF:87391003",
+    "Paris Nord":            "stop_area:SNCF:87271007",
+    "Paris Est":             "stop_area:SNCF:87113001",
+    "Lyon Part-Dieu":        "stop_area:SNCF:87723197",
+    "Marseille St-Charles":  "stop_area:SNCF:87751008",
+    "Bordeaux St-Jean":      "stop_area:SNCF:87581009",
+    "Lille Europe":          "stop_area:SNCF:87223263",
+    "Nantes":                "stop_area:SNCF:87481002",
+    "Strasbourg":            "stop_area:SNCF:87212027",
+    "Rennes":                "stop_area:SNCF:87471003",
+    "Montpellier St-Roch":   "stop_area:SNCF:87773002",
+    "Nice Ville":            "stop_area:SNCF:87756056",
+    "Toulouse Matabiau":     "stop_area:SNCF:87611004",
+}
+
+# Modes commerciaux TGV / Intercités grande vitesse
+COMMERCIAL_MODES_TGV = {"TGV", "INOUI", "OUIGO", "TGV INOUI"}
+
+
+# ─────────────────────────────────────────────
+#  FONCTIONS UTILITAIRES
+# ─────────────────────────────────────────────
+def parse_dt(dt_str: str) -> datetime | None:
+    """Convertit une date Navitia (YYYYMMDDTHHMMSS) en datetime."""
+    if not dt_str:
+        return None
+    try:
+        return datetime.strptime(dt_str, "%Y%m%dT%H%M%S")
+    except ValueError:
+        return None
+
+
+def fmt_dt(dt: datetime | None) -> str:
+    """Formate une datetime en chaîne lisible."""
+    if dt is None:
+        return "—"
+    return dt.strftime("%d/%m/%Y %H:%M")
+
+
+def get_session() -> requests.Session:
+    """Retourne une session HTTP authentifiée."""
+    session = requests.Session()
+    session.auth = (API_KEY, "")
+    session.headers.update({"Accept": "application/json"})
+    return session
+
+
+# ─────────────────────────────────────────────
+#  COLLECTE DES DÉPARTS / ARRIVÉES
+# ─────────────────────────────────────────────
+def fetch_departures(
+    session: requests.Session,
+    stop_area_id: str,
+    gare_name: str,
+    dt_from: datetime,
+    duration_sec: int = 3600,
+    max_results: int = 50,
+) -> list[dict]:
+    """
+    Récupère les départs TGV depuis une gare donnée dans une fenêtre horaire.
+
+    Args:
+        stop_area_id : URI Navitia de la gare
+        gare_name    : Nom humain de la gare (pour l'affichage)
+        dt_from      : Début de la plage de recherche
+        duration_sec : Durée de la fenêtre en secondes (défaut 1 h)
+        max_results  : Nombre max de résultats
+
+    Returns:
+        Liste de dicts contenant les infos de chaque train TGV
+    """
+    url = f"{BASE_URL}/stop_areas/{stop_area_id}/departures"
+    params = {
+        "from_datetime": dt_from.strftime("%Y%m%dT%H%M%S"),
+        "duration": duration_sec,
+        "count": max_results,
+        "data_freshness": "realtime",
+    }
+
+    try:
+        resp = session.get(url, params=params, timeout=15)
+        resp.raise_for_status()
+    except requests.RequestException as e:
+        print(f"  ⚠  Erreur pour {gare_name} : {e}")
+        return []
+
+    departures = resp.json().get("departures", [])
+    trains = []
+
+    for dep in departures:
+        # ── Informations sur le mode commercial ──────────────────────
+        route = dep.get("route", {})
+        line = route.get("line", {})
+        commercial_mode = line.get("commercial_mode", {}).get("name", "").upper()
+
+        # Filtrer uniquement les TGV / OUIGO / INOUI
+        if not any(m in commercial_mode for m in COMMERCIAL_MODES_TGV):
+            continue
+
+        # ── Numéro de train ───────────────────────────────────────────
+        display_info = dep.get("display_informations", {})
+        train_number = display_info.get("headsign", "?")
+        trip_short = display_info.get("trip_short_name", train_number)
+        destination = display_info.get("direction", "Inconnue")
+        network = display_info.get("network", commercial_mode)
+
+        # ── Horaires ──────────────────────────────────────────────────
+        stop_dt = dep.get("stop_date_time", {})
+        dep_base   = parse_dt(stop_dt.get("base_departure_date_time"))
+        dep_rt     = parse_dt(stop_dt.get("departure_date_time"))
+        arr_rt     = parse_dt(stop_dt.get("arrival_date_time"))
+
+        # ── Retard (en minutes) ───────────────────────────────────────
+        delay_min = None
+        if dep_base and dep_rt:
+            delta = dep_rt - dep_base
+            delay_min = int(delta.total_seconds() / 60)
+
+        trains.append({
+            "Train N°":          trip_short or train_number,
+            "Type":              network,
+            "Gare départ":       gare_name,
+            "Heure départ":      fmt_dt(dep_rt or dep_base),
+            "Destination":       destination.strip(),
+            "Retard (min)":      delay_min if delay_min is not None else 0,
+        })
+
+    return trains
+
+
+
+
+# ─────────────────────────────────────────────
+#  PROGRAMME PRINCIPAL
+# ─────────────────────────────────────────────
+def main():
+    # ── Paramètres de la recherche ────────────────────────────────────
+    maintenant = datetime.now()
+    fenetre_heures = 100         # Fenêtre de 2 heures
+    duration_sec = fenetre_heures * 3600
+
+    print("=" * 70)
+    print("  PLANIFICATION DES TRAINS TGV EN FRANCE")
+    print(f"  Fenêtre : {fmt_dt(maintenant)}  →  "
+          f"{fmt_dt(maintenant + timedelta(hours=fenetre_heures))}")
+    print("=" * 70)
+
+    if API_KEY == "VOTRE_CLE_API_SNCF":
+        print("\n⛔  Veuillez renseigner votre clé API dans la variable API_KEY.")
+        print("   Obtenez-en une gratuitement sur :")
+        print("   https://numerique.sncf.com/startup/api/\n")
+        sys.exit(1)
+
+    session = get_session()
+
+    tous_departs  = []
+    toutes_arrivees = []
+
+    for gare_name, stop_area_id in GARES_TGV.items():
+        print(f"  ↗  {gare_name} ...")
+
+        deps = fetch_departures(session, stop_area_id, gare_name,
+                                maintenant, duration_sec)
+        tous_departs.extend(deps)
+
+
+        time.sleep(0.3)   # Respect du rate-limit SNCF
+
+    # ── Affichage des départs ─────────────────────────────────────────
+    print("\n" + "─" * 70)
+    print(f"  DÉPARTS TGV ({len(tous_departs)} trains)")
+    print("─" * 70)
+
+    if tous_departs:
+        df_dep = (
+            pd.DataFrame(tous_departs)
+            .sort_values("Heure départ")
+            .drop_duplicates(subset=["Train N°", "Gare départ"])
+            .reset_index(drop=True)
+        )
+        print(tabulate(df_dep, headers="keys", tablefmt="rounded_outline",
+                       showindex=False))
+    else:
+        print("  Aucun départ TGV trouvé sur la période.")
+
+
+
+    # ── Export CSV ────────────────────────────────────────────────────
+    if tous_departs or toutes_arrivees:
+        ts = maintenant.strftime("%Y%m%d_%H%M")
+        fichier_dep = f"tgv_departs_{ts}.csv"
+
+
+        pd.DataFrame(tous_departs).to_csv(fichier_dep, index=False, encoding="utf-8-sig")
+
+        print(f"\n  ✔  Exports CSV : {fichier_dep}  |  {fichier_arr}")
+
+    print("\n" + "=" * 70)
+
+
+if __name__ == "__main__":
+    main()

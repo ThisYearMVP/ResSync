@@ -20,6 +20,7 @@ struct ContentView: View {
                 LoginView()
             } else {
                 ZStack {
+                    // Le hublot en arrière-plan global
                     AirplaneWindowBackground(selection: selectedTab)
                     
                     TabView(selection: $selectedTab) {
@@ -45,6 +46,7 @@ struct ContentView: View {
                         }
                         .tag(2)
                     }
+                    .scrollContentBackground(.hidden) // Cache les fonds par défaut
                 }
                 .tint(.majorelleBlue)
                 .animation(.spring(), value: selectedTab)

@@ -40,39 +40,38 @@ struct AirplaneWindowBackground: View {
             
             // Cadre du hublot qui glisse
             GeometryReader { geo in
-                let totalTabs = 3
-                // On calcule l'offset pour que le hublot soit à différentes positions
-                // Sur l'onglet 0 (Profil) : très à droite
-                // Sur l'onglet 1 (Mes Trajets) : centré
-                // Sur l'onglet 2 (Ajouter) : très à gauche
-                let horizontalOffset = geo.size.width * (0.4 - CGFloat(selection - 1) * 0.6)
+                // On centre le hublot et on le fait bouger de gauche à droite
+                // selection 0 (Profil) -> Hublot à droite
+                // selection 1 (Mes Trajets) -> Hublot au centre
+                // selection 2 (Ajouter) -> Hublot à gauche
+                let horizontalOffset = geo.size.width * 0.1 - CGFloat(selection - 1) * (geo.size.width * 0.5)
                 
                 RoundedRectangle(cornerRadius: 140, style: .continuous)
                     .stroke(
                         LinearGradient(
-                            colors: [.white, Color.gray.opacity(0.2)],
+                            colors: [.white, Color.gray.opacity(0.3)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
-                        lineWidth: 40
+                        lineWidth: 30
                     )
-                    .frame(width: geo.size.width * 1.8, height: geo.size.height * 1.2)
-                    .offset(x: horizontalOffset, y: -geo.size.height * 0.1)
-                    .shadow(color: .black.opacity(0.1), radius: 20, x: -10, y: 10)
+                    .frame(width: geo.size.width * 0.8, height: geo.size.height * 0.7)
+                    .position(x: horizontalOffset + geo.size.width * 0.4, y: geo.size.height * 0.45)
+                    .shadow(color: .black.opacity(0.15), radius: 20, x: -10, y: 10)
                 
                 // Reflet sur la vitre
                 RoundedRectangle(cornerRadius: 140, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [.white.opacity(0.1), .clear],
+                            colors: [.white.opacity(0.2), .clear],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: geo.size.width * 1.8, height: geo.size.height * 1.2)
-                    .offset(x: horizontalOffset, y: -geo.size.height * 0.1)
+                    .frame(width: geo.size.width * 0.8, height: geo.size.height * 0.7)
+                    .position(x: horizontalOffset + geo.size.width * 0.4, y: geo.size.height * 0.45)
             }
-            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: selection)
+            .animation(.spring(response: 0.8, dampingFraction: 0.7), value: selection)
         }
         .allowsHitTesting(false)
     }

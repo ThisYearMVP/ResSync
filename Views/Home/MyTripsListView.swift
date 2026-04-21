@@ -7,8 +7,6 @@ struct MyTripsListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                AirplaneWindowBackground()
-                
                 if isLoading {
                     ProgressView()
                 } else if trips.isEmpty {

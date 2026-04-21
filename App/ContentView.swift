@@ -19,28 +19,32 @@ struct ContentView: View {
             } else if !supabaseService.isAuthenticated {
                 LoginView()
             } else {
-                TabView(selection: $selectedTab) {
-                    MyProfileView()
-                        .tabItem {
-                            Label("Profil", systemImage: "person.crop.circle")
-                        }
-                        .tag(0)
+                ZStack {
+                    AirplaneWindowBackground(selection: selectedTab)
                     
-                    MyTripsListView()
-                        .id(tripsRefreshID)
+                    TabView(selection: $selectedTab) {
+                        MyProfileView()
+                            .tabItem {
+                                Label("Profil", systemImage: "person.crop.circle")
+                            }
+                            .tag(0)
+                        
+                        MyTripsListView()
+                            .id(tripsRefreshID)
+                            .tabItem {
+                                Label("Mes Trajets", systemImage: " suitcase.rolling.fill")
+                            }
+                            .tag(1)
+                        
+                        TripSearchView(onTripAdded: {
+                            tripsRefreshID = UUID() // Force le rafraîchissement
+                            selectedTab = 1
+                        })
                         .tabItem {
-                            Label("Mes Trajets", systemImage: " suitcase.rolling.fill")
+                            Label("Ajouter", systemImage: "plus.circle.fill")
                         }
-                        .tag(1)
-                    
-                    TripSearchView(onTripAdded: {
-                        tripsRefreshID = UUID() // Force le rafraîchissement
-                        selectedTab = 1
-                    })
-                    .tabItem {
-                        Label("Ajouter", systemImage: "plus.circle.fill")
+                        .tag(2)
                     }
-                    .tag(2)
                 }
                 .tint(.majorelleBlue)
                 .animation(.spring(), value: selectedTab)

@@ -14,8 +14,6 @@ struct TripSearchView: View {
         @Bindable var vm = viewModel
         NavigationStack {
             ZStack {
-                AirplaneWindowBackground()
-                
                 ScrollView {
                     VStack(spacing: 25) {
                         headerSection

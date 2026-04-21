@@ -5,6 +5,8 @@ struct TripSearchView: View {
     var onTripAdded: () -> Void
     @FocusState private var focusedField: Field?
     @State private var isSaving = false
+    @State private var errorMessage: String?
+    @Environment(\.dismiss) var dismiss
     
     enum Field { case origin, destination }
     
@@ -17,6 +19,17 @@ struct TripSearchView: View {
                 ScrollView {
                     VStack(spacing: 25) {
                         headerSection
+                        
+                        if let error = errorMessage {
+                            Text(error)
+                                .font(.caption.bold())
+                                .foregroundColor(.red)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                                .background(Color.red.opacity(0.1))
+                                .cornerRadius(12)
+                                .padding(.horizontal)
+                        }
                         
                         VStack(spacing: 20) {
                             VStack(alignment: .leading, spacing: 15) {
@@ -81,13 +94,19 @@ struct TripSearchView: View {
         Button(action: {
             Task {
                 isSaving = true
+                errorMessage = nil
                 do {
                     try await SupabaseService.shared.saveUserTrip(viewModel.getTrip())
-                    withAnimation(.spring()) {
-                        onTripAdded()
+                    await MainActor.run {
+                        withAnimation(.spring()) {
+                            viewModel.reset()
+                            onTripAdded()
+                            dismiss()
+                        }
                     }
                 } catch {
                     print("Erreur sauvegarde : \(error)")
+                    errorMessage = "Erreur de connexion lors de l'enregistrement."
                 }
                 isSaving = false
             }
@@ -170,7 +189,7 @@ struct TripSearchView: View {
     }
     
     var isSearchEnabled: Bool {
-        (viewModel.selectedRoute != nil || viewModel.transport == .plane) && !viewModel.origin.isEmpty && !viewModel.destination.isEmpty
+        !viewModel.origin.isEmpty && !viewModel.destination.isEmpty
     }
 }
 

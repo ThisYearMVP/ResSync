@@ -2,7 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var supabaseService = SupabaseService.shared
-    @State private var selectedTab = 1 // Par défaut sur "Mes Trajets"
+    @State private var selectedTab = 1
+    @State private var tripsRefreshID = UUID()
     
     var body: some View {
         Group {
@@ -17,13 +18,15 @@ struct ContentView: View {
                         .tag(0)
                     
                     MyTripsListView()
+                        .id(tripsRefreshID)
                         .tabItem {
                             Label("Mes Trajets", systemImage: " suitcase.rolling.fill")
                         }
                         .tag(1)
                     
                     TripSearchView(onTripAdded: {
-                        selectedTab = 1 // Redirige vers mes trajets après ajout
+                        tripsRefreshID = UUID() // Force le rafraîchissement
+                        selectedTab = 1
                     })
                     .tabItem {
                         Label("Ajouter", systemImage: "plus.circle.fill")

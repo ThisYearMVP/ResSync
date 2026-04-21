@@ -35,8 +35,10 @@ struct MyTripsListView: View {
             .refreshable {
                 await loadTrips()
             }
-            .task {
-                await loadTrips()
+            .onAppear {
+                Task {
+                    await loadTrips()
+                }
             }
         }
     }

@@ -29,8 +29,24 @@ struct TgvSchedule: Identifiable, Codable, Hashable {
     var train_number: String
     var origin: String
     var destination: String
-    var departure_time: Date
+    var departure_time_string: String
     var transport_type: String
+    
+    enum CodingKeys: String, CodingKey {
+        case id, train_number, origin, destination, transport_type
+        case departure_time_string = "departure_time"
+    }
+    
+    var departure_time: Date {
+        let formatter = ISO8601DateFormatter()
+        // Essayer avec millisecondes
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = formatter.date(from: departure_time_string) { return date }
+        
+        // Essayer sans millisecondes
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter.date(from: departure_time_string) ?? Date()
+    }
 }
 
 /// Activités que les voyageurs souhaitent partager.

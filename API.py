@@ -2,6 +2,7 @@ import requests
 from datetime import datetime, timedelta
 from tabulate import tabulate
 import time
+import pandas as pd
 import sys
 import os
 from supabase import create_client, Client
@@ -179,7 +180,7 @@ def main():
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
     session = get_session()
 
-    jours = 30              # ← On récupère 1 mois de données
+    jours = 15           # ← On récupère 15 jours de données
     fenetre_h = 24
     duration_sec = fenetre_h * 3600
 

@@ -5,13 +5,11 @@ extension Color {
     static let majorelleBlue = Color(red: 45/255, green: 40/255, blue: 230/255)
 }
 
-/// Vue d'arrière-plan avec un hublot d'avion stylisé qui peut glisser
+/// Vue d'arrière-plan avec un hublot d'avion stylisé
 struct AirplaneWindowBackground: View {
-    var selection: Int = 0
-    
     var body: some View {
         ZStack {
-            // Fond ciel bleu dégradé (statique ou léger mouvement)
+            // Fond ciel bleu dégradé
             LinearGradient(
                 colors: [
                     Color(red: 0.4, green: 0.7, blue: 1.0),
@@ -22,29 +20,25 @@ struct AirplaneWindowBackground: View {
             )
             .ignoresSafeArea()
             
-            // Nuages décoratifs qui bougent avec la sélection
+            // Nuages décoratifs
             GeometryReader { geo in
                 Circle()
                     .fill(.white.opacity(0.4))
                     .frame(width: 200, height: 200)
                     .blur(radius: 50)
-                    .offset(x: -50 - CGFloat(selection) * 50, y: 100)
+                    .offset(x: -50, y: 100)
                 
                 Circle()
                     .fill(.white.opacity(0.3))
                     .frame(width: 300, height: 300)
                     .blur(radius: 60)
-                    .offset(x: geo.size.width * 0.5 - CGFloat(selection) * 30, y: geo.size.height * 0.6)
+                    .offset(x: geo.size.width * 0.5, y: geo.size.height * 0.6)
             }
-            .animation(.spring(response: 0.6, dampingFraction: 0.8), value: selection)
             
-            // Cadre du hublot qui glisse
+            // Cadre du hublot
             GeometryReader { geo in
-                // On centre le hublot et on le fait bouger de gauche à droite
-                // selection 0 (Profil) -> Hublot à droite
-                // selection 1 (Mes Trajets) -> Hublot au centre
-                // selection 2 (Ajouter) -> Hublot à gauche
-                let horizontalOffset = geo.size.width * 0.1 - CGFloat(selection - 1) * (geo.size.width * 0.5)
+                let width = geo.size.width * 0.85
+                let height = geo.size.height * 0.7
                 
                 RoundedRectangle(cornerRadius: 140, style: .continuous)
                     .stroke(
@@ -53,10 +47,10 @@ struct AirplaneWindowBackground: View {
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         ),
-                        lineWidth: 30
+                        lineWidth: 35
                     )
-                    .frame(width: geo.size.width * 0.8, height: geo.size.height * 0.7)
-                    .position(x: horizontalOffset + geo.size.width * 0.4, y: geo.size.height * 0.45)
+                    .frame(width: width, height: height)
+                    .position(x: geo.size.width / 2, y: geo.size.height * 0.45)
                     .shadow(color: .black.opacity(0.15), radius: 20, x: -10, y: 10)
                 
                 // Reflet sur la vitre
@@ -68,10 +62,9 @@ struct AirplaneWindowBackground: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: geo.size.width * 0.8, height: geo.size.height * 0.7)
-                    .position(x: horizontalOffset + geo.size.width * 0.4, y: geo.size.height * 0.45)
+                    .frame(width: width, height: height)
+                    .position(x: geo.size.width / 2, y: geo.size.height * 0.45)
             }
-            .animation(.spring(response: 0.8, dampingFraction: 0.7), value: selection)
         }
         .allowsHitTesting(false)
     }

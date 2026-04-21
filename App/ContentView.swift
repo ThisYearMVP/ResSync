@@ -19,49 +19,31 @@ struct ContentView: View {
             } else if !supabaseService.isAuthenticated {
                 LoginView()
             } else {
-                ZStack {
-                    // Le hublot en arrière-plan global
-                    AirplaneWindowBackground(selection: selectedTab)
-                    
-                    TabView(selection: $selectedTab) {
-                        MyProfileView()
-                            .tabItem {
-                                Label("Profil", systemImage: "person.crop.circle")
-                            }
-                            .tag(0)
-                        
-                        MyTripsListView()
-                            .id(tripsRefreshID)
-                            .tabItem {
-                                Label("Mes Trajets", systemImage: " suitcase.rolling.fill")
-                            }
-                            .tag(1)
-                        
-                        TripSearchView(onTripAdded: {
-                            tripsRefreshID = UUID() // Force le rafraîchissement
-                            selectedTab = 1
-                        })
+                TabView(selection: $selectedTab) {
+                    MyProfileView()
                         .tabItem {
-                            Label("Ajouter", systemImage: "plus.circle.fill")
+                            Label("Profil", systemImage: "person.crop.circle")
                         }
-                        .tag(2)
+                        .tag(0)
+                    
+                    MyTripsListView()
+                        .id(tripsRefreshID)
+                        .tabItem {
+                            Label("Mes Trajets", systemImage: " suitcase.rolling.fill")
+                        }
+                        .tag(1)
+                    
+                    TripSearchView(onTripAdded: {
+                        tripsRefreshID = UUID() // Force le rafraîchissement
+                        selectedTab = 1
+                    })
+                    .tabItem {
+                        Label("Ajouter", systemImage: "plus.circle.fill")
                     }
-                    .scrollContentBackground(.hidden)
+                    .tag(2)
                 }
                 .tint(.majorelleBlue)
                 .animation(.spring(), value: selectedTab)
-                .onAppear {
-                    // Force la transparence des barres système pour laisser voir le background
-                    let appearance = UITabBarAppearance()
-                    appearance.configureWithTransparentBackground()
-                    UITabBar.appearance().standardAppearance = appearance
-                    UITabBar.appearance().scrollEdgeAppearance = appearance
-                    
-                    let navAppearance = UINavigationBarAppearance()
-                    navAppearance.configureWithTransparentBackground()
-                    UINavigationBar.appearance().standardAppearance = navAppearance
-                    UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
-                }
             }
         }
     }

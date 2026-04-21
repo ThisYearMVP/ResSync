@@ -7,6 +7,8 @@ struct MyTripsListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                AirplaneWindowBackground()
+                
                 if isLoading {
                     ProgressView()
                 } else if trips.isEmpty {
@@ -30,7 +32,6 @@ struct MyTripsListView: View {
                 }
             }
             .navigationTitle("Mes Trajets")
-            .background(Color.clear) // Force la transparence
             .refreshable {
                 await loadTrips()
             }
@@ -40,7 +41,6 @@ struct MyTripsListView: View {
                 }
             }
         }
-        .background(Color.clear) // Transparence du NavigationStack
     }
     
     private func loadTrips() async {

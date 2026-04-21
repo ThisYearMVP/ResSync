@@ -14,6 +14,8 @@ struct TripSearchView: View {
         @Bindable var vm = viewModel
         NavigationStack {
             ZStack {
+                AirplaneWindowBackground()
+                
                 ScrollView {
                     VStack(spacing: 25) {
                         headerSection
@@ -74,9 +76,7 @@ struct TripSearchView: View {
             }
             .navigationTitle("Nouveau Voyage")
             .navigationBarTitleDisplayMode(.inline)
-            .background(Color.clear)
         }
-        .background(Color.clear)
     }
     
     var headerSection: some View {

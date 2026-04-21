@@ -6,8 +6,11 @@ struct MyProfileView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
+            ZStack {
+                AirplaneWindowBackground()
+                
+                ScrollView {
+                    VStack(spacing: 20) {
                     // Header Card
                     VStack {
                         HStack {
@@ -73,8 +76,6 @@ struct MyProfileView: View {
                 .padding()
             }
             .navigationTitle("Mon Profil")
-            .background(Color.clear)
         }
-        .background(Color.clear)
     }
 }

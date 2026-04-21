@@ -7,7 +7,8 @@ struct MyTripsListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                AirplaneWindowBackground()
+                // Fond transparent
+                Color.clear.ignoresSafeArea()
                 
                 if isLoading {
                     ProgressView()
@@ -29,6 +30,7 @@ struct MyTripsListView: View {
                         }
                         .padding()
                     }
+                    .scrollContentBackground(.hidden)
                 }
             }
             .navigationTitle("Mes Trajets")

@@ -19,30 +19,54 @@ struct ContentView: View {
             } else if !supabaseService.isAuthenticated {
                 LoginView()
             } else {
-                TabView(selection: $selectedTab) {
-                    MyProfileView()
-                        .tabItem {
-                            Label("Profil", systemImage: "person.crop.circle")
-                        }
-                        .tag(0)
+                ZStack {
+                    // Fond global glissant
+                    AirplaneWindowBackground(selection: selectedTab)
                     
-                    MyTripsListView()
-                        .id(tripsRefreshID)
+                    TabView(selection: $selectedTab) {
+                        MyProfileView()
+                            .tabItem {
+                                Label("Profil", systemImage: "person.crop.circle")
+                            }
+                            .tag(0)
+                        
+                        MyTripsListView()
+                            .id(tripsRefreshID)
+                            .tabItem {
+                                Label("Mes Trajets", systemImage: " suitcase.rolling.fill")
+                            }
+                            .tag(1)
+                        
+                        TripSearchView(onTripAdded: {
+                            tripsRefreshID = UUID() // Force le rafraîchissement
+                            selectedTab = 1
+                        })
                         .tabItem {
-                            Label("Mes Trajets", systemImage: " suitcase.rolling.fill")
+                            Label("Ajouter", systemImage: "plus.circle.fill")
                         }
-                        .tag(1)
-                    
-                    TripSearchView(onTripAdded: {
-                        tripsRefreshID = UUID() // Force le rafraîchissement
-                        selectedTab = 1
-                    })
-                    .tabItem {
-                        Label("Ajouter", systemImage: "plus.circle.fill")
+                        .tag(2)
                     }
-                    .tag(2)
+                    .scrollContentBackground(.hidden) // Cache les fonds par défaut
                 }
                 .tint(.majorelleBlue)
+                .onAppear {
+                    // Suppression radicale des fonds système pour la transparence
+                    let appearance = UITabBarAppearance()
+                    appearance.configureWithTransparentBackground()
+                    appearance.backgroundColor = .clear
+                    UITabBar.appearance().standardAppearance = appearance
+                    UITabBar.appearance().scrollEdgeAppearance = appearance
+                    
+                    let navAppearance = UINavigationBarAppearance()
+                    navAppearance.configureWithTransparentBackground()
+                    navAppearance.backgroundColor = .clear
+                    UINavigationBar.appearance().standardAppearance = navAppearance
+                    UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+                    
+                    // Force la transparence des vues de collection/table si existantes
+                    UITableView.appearance().backgroundColor = .clear
+                    UITableViewCell.appearance().backgroundColor = .clear
+                }
                 .animation(.spring(), value: selectedTab)
             }
         }

@@ -7,7 +7,7 @@ struct MyProfileView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                AirplaneWindowBackground()
+                Color.clear.ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 20) {
@@ -75,6 +75,7 @@ struct MyProfileView: View {
                     }
                     .padding()
                 }
+                .scrollContentBackground(.hidden)
             }
             .navigationTitle("Mon Profil")
         }

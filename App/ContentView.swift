@@ -7,7 +7,16 @@ struct ContentView: View {
     
     var body: some View {
         Group {
-            if !supabaseService.isAuthenticated {
+            if !supabaseService.isInitialLoadComplete {
+                ZStack {
+                    AirplaneWindowBackground()
+                    ProgressView("Vérification de la session...")
+                        .tint(.majorelleBlue)
+                        .padding()
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(15)
+                }
+            } else if !supabaseService.isAuthenticated {
                 LoginView()
             } else {
                 TabView(selection: $selectedTab) {

@@ -16,6 +16,7 @@ class SupabaseService {
     
     var currentUser: User?
     var session: Session?
+    var isInitialLoadComplete = false
     
     var isAuthenticated: Bool { session != nil }
     
@@ -29,10 +30,19 @@ class SupabaseService {
         
         // Ecoute les changements de session
         Task {
+            // Premier check rapide de la session actuelle
+            if let initialSession = try? await client.auth.session {
+                self.session = initialSession
+                await fetchCurrentUser(id: initialSession.user.id)
+            }
+            
+            await MainActor.run {
+                self.isInitialLoadComplete = true
+            }
+            
             for await event in client.auth.authStateChanges {
                 self.session = event.session
                 if let user = event.session?.user {
-                    // Si le profil n'est pas encore en mémoire, on l'initialise
                     if self.currentUser == nil {
                         self.currentUser = User(id: user.id)
                     }

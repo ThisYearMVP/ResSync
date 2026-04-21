@@ -74,7 +74,9 @@ struct TripSearchView: View {
             }
             .navigationTitle("Nouveau Voyage")
             .navigationBarTitleDisplayMode(.inline)
+            .background(Color.clear)
         }
+        .background(Color.clear)
     }
     
     var headerSection: some View {

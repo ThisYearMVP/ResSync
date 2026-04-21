@@ -75,5 +75,6 @@ struct MyProfileView: View {
             .navigationTitle("Mon Profil")
             .background(Color.clear)
         }
+        .background(Color.clear)
     }
 }

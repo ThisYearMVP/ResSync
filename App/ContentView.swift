@@ -46,10 +46,22 @@ struct ContentView: View {
                         }
                         .tag(2)
                     }
-                    .scrollContentBackground(.hidden) // Cache les fonds par défaut
+                    .scrollContentBackground(.hidden)
                 }
                 .tint(.majorelleBlue)
                 .animation(.spring(), value: selectedTab)
+                .onAppear {
+                    // Force la transparence des barres système pour laisser voir le background
+                    let appearance = UITabBarAppearance()
+                    appearance.configureWithTransparentBackground()
+                    UITabBar.appearance().standardAppearance = appearance
+                    UITabBar.appearance().scrollEdgeAppearance = appearance
+                    
+                    let navAppearance = UINavigationBarAppearance()
+                    navAppearance.configureWithTransparentBackground()
+                    UINavigationBar.appearance().standardAppearance = navAppearance
+                    UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
+                }
             }
         }
     }

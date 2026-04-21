@@ -1,33 +1,34 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Binding var phase: Int
     @State private var supabaseService = SupabaseService.shared
     @State private var selectedTab = 1
     @State private var tripsRefreshID = UUID()
-    @State private var phase = 1 // Variable d'état pour l'animation du fond
     
     var body: some View {
         Group {
             if !supabaseService.isInitialLoadComplete {
                 ZStack {
-                    AirplaneWindowBackground(selection: 1)
-                        .ignoresSafeArea()
+                    Color.clear
                     ProgressView("Vérification...")
                         .tint(.majorelleBlue)
                         .padding()
                         .background(.ultraThinMaterial)
                         .cornerRadius(15)
                 }
+                .transition(.opacity)
             } else if !supabaseService.isAuthenticated {
+                // ÉCHANGE CONDITIONNEL : Pas de NavigationStack pour la transition Login -> Menu
                 LoginView()
+                    .background(Color.clear)
+                    .transition(.opacity)
+                    .onAppear { phase = 1 } // Reset phase pour le login
             } else {
+                // MENU PRINCIPAL
                 ZStack {
-                    // COUCHE INFÉRIEURE : Arrière-plan animé
-                    AirplaneWindowBackground(selection: phase)
-                        .ignoresSafeArea()
-                        .animation(.easeInOut(duration: 0.6), value: phase)
+                    Color.clear
                     
-                    // COUCHE SUPÉRIEURE : Contenu
                     TabView(selection: $selectedTab) {
                         MyProfileView()
                             .background(Color.clear)
@@ -46,19 +47,17 @@ struct ContentView: View {
                         .tag(2)
                     }
                     .background(Color.clear)
-                    .onAppear {
-                        // Règle de transparence UITabBar
-                        let appearance = UITabBarAppearance()
-                        appearance.configureWithTransparentBackground()
-                        appearance.backgroundColor = UIColor.clear
-                        UITabBar.appearance().standardAppearance = appearance
-                        UITabBar.appearance().scrollEdgeAppearance = appearance
+                    .tabViewStyle(.page(indexDisplayMode: .never)) // Style page pour fluidité
+                }
+                .transition(.opacity)
+                .onChange(of: selectedTab) { _, newValue in
+                    withAnimation(.easeInOut(duration: 0.6)) {
+                        phase = newValue
                     }
                 }
-                .tint(.majorelleBlue)
-                .onChange(of: selectedTab) { _, newValue in
-                    // Piloter l'animation du fond
-                    phase = newValue
+                .onAppear {
+                    // Initialise la phase avec l'onglet par défaut
+                    phase = selectedTab
                 }
             }
         }
@@ -78,7 +77,7 @@ struct InterestTag: View {
                 .fontWeight(.medium)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.majorelleBlue : Color.gray.opacity(0.1))
+                .background(isSelected ? Color.majorelleBlue : Color.white.opacity(0.1))
                 .foregroundColor(isSelected ? .white : .primary)
                 .cornerRadius(20)
         }

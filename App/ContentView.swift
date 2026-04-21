@@ -20,8 +20,9 @@ struct ContentView: View {
                 LoginView()
             } else {
                 ZStack {
-                    // Fond global glissant
+                    // 1. Fond global (doit être tout en bas)
                     AirplaneWindowBackground(selection: selectedTab)
+                        .ignoresSafeArea()
                     
                     TabView(selection: $selectedTab) {
                         MyProfileView()
@@ -38,7 +39,7 @@ struct ContentView: View {
                             .tag(1)
                         
                         TripSearchView(onTripAdded: {
-                            tripsRefreshID = UUID() // Force le rafraîchissement
+                            tripsRefreshID = UUID()
                             selectedTab = 1
                         })
                         .tabItem {
@@ -46,26 +47,31 @@ struct ContentView: View {
                         }
                         .tag(2)
                     }
-                    .scrollContentBackground(.hidden) // Cache les fonds par défaut
+                    // 2. Supprimer le fond de la TabView elle-même
+                    .scrollContentBackground(.hidden)
                 }
+                .background(Color.clear) // S'assurer que le conteneur est transparent
                 .tint(.majorelleBlue)
                 .onAppear {
-                    // Suppression radicale des fonds système pour la transparence
+                    // 3. Forcer UIKit à être transparent (Nuclear Option)
                     let appearance = UITabBarAppearance()
                     appearance.configureWithTransparentBackground()
                     appearance.backgroundColor = .clear
+                    appearance.shadowColor = .clear
                     UITabBar.appearance().standardAppearance = appearance
                     UITabBar.appearance().scrollEdgeAppearance = appearance
                     
                     let navAppearance = UINavigationBarAppearance()
                     navAppearance.configureWithTransparentBackground()
                     navAppearance.backgroundColor = .clear
+                    navAppearance.shadowColor = .clear
                     UINavigationBar.appearance().standardAppearance = navAppearance
                     UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
                     
-                    // Force la transparence des vues de collection/table si existantes
+                    // Désactiver les backgrounds par défaut des listes et tables
                     UITableView.appearance().backgroundColor = .clear
-                    UITableViewCell.appearance().backgroundColor = .clear
+                    UITableView.appearance().backgroundView = nil
+                    UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = .systemBlue
                 }
                 .animation(.spring(), value: selectedTab)
             }

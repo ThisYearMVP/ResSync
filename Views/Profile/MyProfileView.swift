@@ -78,6 +78,9 @@ struct MyProfileView: View {
                 .scrollContentBackground(.hidden)
             }
             .navigationTitle("Mon Profil")
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .background(Color.clear)
         }
+        .background(Color.clear)
     }
 }

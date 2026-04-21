@@ -34,6 +34,8 @@ struct MyTripsListView: View {
                 }
             }
             .navigationTitle("Mes Trajets")
+            .toolbarBackground(.hidden, for: .navigationBar) // Cache la barre de nav
+            .background(Color.clear)
             .refreshable {
                 await loadTrips()
             }

@@ -77,7 +77,10 @@ struct TripSearchView: View {
             }
             .navigationTitle("Nouveau Voyage")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.hidden, for: .navigationBar) // Cache la barre de nav
+            .background(Color.clear)
         }
+        .background(Color.clear)
     }
     
     var headerSection: some View {

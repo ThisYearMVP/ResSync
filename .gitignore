@@ -14,9 +14,17 @@ DerivedData/
 .build/
 .swiftpm/xcode/package.xcresult/
 
+# Python & Virtual Envs
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.csv
+
 # macOS
 .DS_Store
 
 # Supabase (si vous stockez des clés localement)
 .env
 *.env
+\n# IDEs\n.idea/

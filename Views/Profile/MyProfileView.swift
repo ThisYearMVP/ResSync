@@ -33,7 +33,9 @@ struct MyProfileView: View {
                 Section("Paramètres") {
                     NavigationLink("Modifier mon profil", destination: ProfileSetupView())
                     Button("Se déconnecter", role: .destructive) {
-                        try? FirebaseService.shared.signOut()
+                        Task {
+                            try? await SupabaseService.shared.signOut()
+                        }
                     }
                 }
             }

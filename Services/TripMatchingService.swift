@@ -1,4 +1,6 @@
 import Foundation
+import Supabase
+import PostgREST
 
 /// Service de matching utilisant les requêtes Supabase.
 class TripMatchingService {

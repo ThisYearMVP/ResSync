@@ -1,76 +1,98 @@
 import SwiftUI
 
-/// Vue affichant une carte de profil pour le feed.
 struct ProfileCardView: View {
     let user: User
     
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            // Photo de l'utilisateur (Placeholder si vide)
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.gray.opacity(0.3))
-                .aspectRatio(0.7, contentMode: .fill)
-                .overlay {
-                    if let photoURL = user.photoURLs.first {
-                        AsyncImage(url: URL(string: photoURL)) { image in
+        GeometryReader { geometry in
+            ZStack(alignment: .bottomLeading) {
+                // Image de fond plein écran
+                Group {
+                    if let photoURL = user.photoURLs.first, let url = URL(string: photoURL) {
+                        AsyncImage(url: url) { image in
                             image.resizable().scaledToFill()
                         } placeholder: {
-                            ProgressView()
+                            Color.gray.opacity(0.2)
                         }
                     } else {
-                        Image(systemName: "person.fill")
-                            .resizable()
-                            .scaledToFit()
-                            .padding(100)
-                            .foregroundColor(.white)
+                        ZStack {
+                            Color.secondary.opacity(0.1)
+                            Image(systemName: "person.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .padding(100)
+                                .foregroundColor(.gray.opacity(0.3))
+                        }
                     }
                 }
+                .frame(width: geometry.size.width, height: geometry.size.height)
                 .clipped()
-            
-            // Dégradé pour la lisibilité
-            LinearGradient(colors: [.clear, .black.opacity(0.8)], startPoint: .center, endPoint: .bottom)
-                .cornerRadius(20)
-            
-            VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    Text("\(user.name), \(user.age)")
-                        .font(.title)
-                        .fontWeight(.bold)
-                    
-                    Text(user.nationality)
-                        .font(.headline)
-                    
-                    Spacer()
-                    
-                    if let trip = user.currentTrip {
-                        Image(systemName: trip.activity.icon)
-                            .font(.title2)
-                            .padding(8)
+                
+                // Dégradé noir pour la lisibilité du texte
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.7)],
+                    startPoint: .center,
+                    endPoint: .bottom
+                )
+                
+                // Informations utilisateur
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack(alignment: .bottom) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                Text(user.name)
+                                    .font(.system(size: 32, weight: .bold))
+                                Text("\(user.age)")
+                                    .font(.system(size: 28, weight: .light))
+                            }
+                            
+                            HStack {
+                                Image(systemName: "mappin.and.ellipse")
+                                Text(user.nationality)
+                            }
+                            .font(.subheadline)
+                        }
+                        
+                        Spacer()
+                        
+                        // Icône de l'activité du trajet
+                        if let trip = user.currentTrip {
+                            VStack {
+                                Image(systemName: trip.activity.icon)
+                                    .font(.title)
+                                Text(trip.activity.rawValue)
+                                    .font(.caption2)
+                            }
+                            .padding(12)
                             .background(.ultraThinMaterial)
-                            .clipShape(Circle())
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                    
+                    Text(user.bio)
+                        .font(.body)
+                        .lineLimit(2)
+                    
+                    // Centres d'intérêt
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack {
+                            ForEach(user.interests, id: \.self) { interest in
+                                Text(interest)
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 6)
+                                    .background(.white.opacity(0.2))
+                                    .clipShape(Capsule())
+                            }
+                        }
                     }
                 }
-                
-                Text(user.bio)
-                    .lineLimit(2)
-                    .font(.subheadline)
-                
-                // Tags des centres d'intérêt
-                HStack {
-                    ForEach(user.interests.prefix(3), id: \.self) { interest in
-                        Text(interest)
-                            .font(.caption)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(.white.opacity(0.2))
-                            .cornerRadius(15)
-                    }
-                }
+                .padding(24)
+                .foregroundColor(.white)
             }
-            .padding(20)
-            .foregroundColor(.white)
+            .cornerRadius(20)
+            .shadow(radius: 10)
         }
-        .cornerRadius(20)
-        .padding()
     }
 }

@@ -23,6 +23,16 @@ enum TransportType: String, Codable, CaseIterable {
     }
 }
 
+/// Représente un trajet réel issu du cache (SNCF API)
+struct TgvSchedule: Identifiable, Codable, Hashable {
+    var id: UUID?
+    var train_number: String
+    var origin: String
+    var destination: String
+    var departure_time: Date
+    var transport_type: String
+}
+
 /// Activités que les voyageurs souhaitent partager.
 enum ActivityType: String, Codable, CaseIterable {
     case work = "Travailler"

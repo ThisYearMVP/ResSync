@@ -2,30 +2,58 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var supabaseService = SupabaseService.shared
+    @State private var selectedTab = 1 // Par défaut sur "Mes Trajets"
     
     var body: some View {
         Group {
             if !supabaseService.isAuthenticated {
                 LoginView()
             } else {
-                TabView {
-                    TripSearchView()
-                        .tabItem {
-                            Label("Voyage", systemImage: "airplane.departure")
-                        }
-                    
-                    MatchesListView()
-                        .tabItem {
-                            Label("Matches", systemImage: "bubble.left.and.bubble.right.fill")
-                        }
-                    
+                TabView(selection: $selectedTab) {
                     MyProfileView()
                         .tabItem {
-                            Label("Mon Profil", systemImage: "person.circle")
+                            Label("Profil", systemImage: "person.crop.circle")
                         }
+                        .tag(0)
+                    
+                    MyTripsListView()
+                        .tabItem {
+                            Label("Mes Trajets", systemImage: " suitcase.rolling.fill")
+                        }
+                        .tag(1)
+                    
+                    TripSearchView(onTripAdded: {
+                        selectedTab = 1 // Redirige vers mes trajets après ajout
+                    })
+                    .tabItem {
+                        Label("Ajouter", systemImage: "plus.circle.fill")
+                    }
+                    .tag(2)
                 }
-                .tint(.blue)
+                .tint(.majorelleBlue)
+                .animation(.spring(), value: selectedTab)
             }
         }
+    }
+}
+
+// Composant partagé pour les tags d'intérêt
+struct InterestTag: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.caption)
+                .fontWeight(.medium)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(isSelected ? Color.majorelleBlue : Color.gray.opacity(0.1))
+                .foregroundColor(isSelected ? .white : .primary)
+                .cornerRadius(20)
+        }
+        .buttonStyle(.plain)
     }
 }

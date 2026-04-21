@@ -1,7 +1,7 @@
 import Foundation
 import Observation
+import SwiftUI
 
-/// ViewModel pour le flux de profils (Feed).
 @Observable
 class FeedViewModel {
     var matchingUsers: [User] = []
@@ -9,25 +9,34 @@ class FeedViewModel {
     
     private let matchingService = TripMatchingService()
     
-    /// Charge les utilisateurs qui matchent avec le trajet donné.
     func loadMatches(for trip: Trip) async {
         isLoading = true
         do {
-            matchingUsers = try await matchingService.fetchMatchingUsers(for: trip)
+            let results = try await matchingService.fetchMatchingUsers(for: trip)
+            if results.isEmpty {
+                // Utilisation des mocks pour le développement si la base est vide
+                matchingUsers = User.mocks
+            } else {
+                matchingUsers = results
+            }
         } catch {
             print("Erreur de chargement : \(error.localizedDescription)")
+            // Fallback sur les mocks en cas d'erreur réseau/base
+            matchingUsers = User.mocks
         }
         isLoading = false
     }
     
-    /// Action lors d'un swipe à droite (intéressé).
     func likeUser(_ user: User) {
-        // Logique de création de match Firestore à implémenter ici.
-        matchingUsers.removeAll { $0.id == user.id }
+        // Enregistrez le match dans la base de données ici
+        withAnimation {
+            matchingUsers.removeAll { $0.id == user.id }
+        }
     }
     
-    /// Action lors d'un swipe à gauche (passer).
     func skipUser(_ user: User) {
-        matchingUsers.removeAll { $0.id == user.id }
+        withAnimation {
+            matchingUsers.removeAll { $0.id == user.id }
+        }
     }
 }

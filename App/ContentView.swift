@@ -5,60 +5,67 @@ struct ContentView: View {
     @State private var supabaseService = SupabaseService.shared
     @State private var selectedTab = 1
     @State private var tripsRefreshID = UUID()
+    @State private var showRevealAnimation = true // Pour l'animation de départ
     
     var body: some View {
-        Group {
-            if !supabaseService.isInitialLoadComplete {
-                ZStack {
-                    Color.clear
-                    ProgressView("Vérification...")
-                        .tint(.majorelleBlue)
-                        .padding()
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(15)
-                }
-                .transition(.opacity)
-            } else if !supabaseService.isAuthenticated {
-                // ÉCHANGE CONDITIONNEL : Pas de NavigationStack pour la transition Login -> Menu
-                LoginView()
-                    .background(Color.clear)
-                    .transition(.opacity)
-                    .onAppear { phase = 1 } // Reset phase pour le login
-            } else {
-                // MENU PRINCIPAL
-                ZStack {
-                    Color.clear
-                    
-                    TabView(selection: $selectedTab) {
-                        MyProfileView()
-                            .background(Color.clear)
-                            .tag(0)
-                        
-                        MyTripsListView()
-                            .id(tripsRefreshID)
-                            .background(Color.clear)
-                            .tag(1)
-                        
-                        TripSearchView(onTripAdded: {
-                            tripsRefreshID = UUID()
-                            selectedTab = 1
-                        })
-                        .background(Color.clear)
-                        .tag(2)
+        ZStack {
+            Group {
+                if !supabaseService.isInitialLoadComplete {
+                    ZStack {
+                        Color.clear
+                        ProgressView("Vérification...")
+                            .tint(.majorelleBlue)
                     }
+                } else if !supabaseService.isAuthenticated {
+                    LoginView()
+                        .onAppear { 
+                            phase = 1 
+                            showRevealAnimation = false // Pas de reveal sur le login
+                        }
+                } else {
+                    mainMenuView
+                        .onAppear { phase = selectedTab }
+                }
+            }
+            
+            // L'avion qui découvre le menu
+            if supabaseService.isAuthenticated && showRevealAnimation {
+                AirplaneRevealView {
+                    showRevealAnimation = false
+                }
+                .zIndex(10)
+            }
+        }
+    }
+    
+    var mainMenuView: some View {
+        ZStack {
+            Color.clear
+            
+            TabView(selection: $selectedTab) {
+                MyProfileView()
                     .background(Color.clear)
-                    .tabViewStyle(.page(indexDisplayMode: .never)) // Style page pour fluidité
-                }
-                .transition(.opacity)
-                .onChange(of: selectedTab) { _, newValue in
-                    withAnimation(.easeInOut(duration: 0.6)) {
-                        phase = newValue
-                    }
-                }
-                .onAppear {
-                    // Initialise la phase avec l'onglet par défaut
-                    phase = selectedTab
-                }
+                    .tag(0)
+                
+                MyTripsListView()
+                    .id(tripsRefreshID)
+                    .background(Color.clear)
+                    .tag(1)
+                
+                TripSearchView(onTripAdded: {
+                    tripsRefreshID = UUID()
+                    selectedTab = 1
+                })
+                .background(Color.clear)
+                .tag(2)
+            }
+            .background(Color.clear)
+            .tabViewStyle(.page(indexDisplayMode: .never))
+        }
+        .transition(.opacity)
+        .onChange(of: selectedTab) { _, newValue in
+            withAnimation(.easeInOut(duration: 0.6)) {
+                phase = newValue
             }
         }
     }

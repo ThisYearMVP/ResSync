@@ -81,3 +81,45 @@ struct AirplaneWindowBackground: View {
         .background(Color.clear)
     }
 }
+
+/// Animation d'avion qui "découvre" le menu
+struct AirplaneRevealView: View {
+    @State private var airplaneOffset: CGFloat = -200
+    @State private var opacity: Double = 1.0
+    var onComplete: () -> Void
+    
+    var body: some View {
+        ZStack {
+            // Fond blanc qui s'efface
+            Color.white
+                .opacity(opacity)
+                .ignoresSafeArea()
+            
+            // L'avion qui traverse l'écran
+            Image(systemName: "airplane")
+                .font(.system(size: 80))
+                .foregroundColor(.majorelleBlue)
+                .rotationEffect(.degrees(0))
+                .offset(x: airplaneOffset)
+                .opacity(opacity)
+        }
+        .onAppear {
+            // L'avion décolle et traverse
+            withAnimation(.easeInOut(duration: 1.5)) {
+                airplaneOffset = 500 // Sortie de l'écran
+            }
+            
+            // On commence à effacer le rideau blanc juste avant que l'avion sorte
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                withAnimation(.easeOut(duration: 0.8)) {
+                    opacity = 0
+                }
+            }
+            
+            // Fin de l'animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
+                onComplete()
+            }
+        }
+    }
+}

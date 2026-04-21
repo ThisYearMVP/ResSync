@@ -106,7 +106,8 @@ struct TripSearchView: View {
                     }
                 } catch {
                     print("Erreur sauvegarde : \(error)")
-                    errorMessage = "Erreur de connexion lors de l'enregistrement."
+                    // Afficher l'erreur réelle pour le débug
+                    errorMessage = "Erreur: \(error.localizedDescription)"
                 }
                 isSaving = false
             }

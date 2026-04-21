@@ -86,7 +86,7 @@ class SupabaseService {
             "user_id": .string(userId.uuidString),
             "origin": .string(trip.origin),
             "destination": .string(trip.destination),
-            "departure_time": .string(ISO8601DateFormatter().string(from: trip.date)),
+            "departure_time": .string(trip.date.iso8601String), // Utilise l'extension avec millisecondes
             "transport_type": .string(trip.transport.rawValue),
             "activity_type": .string(trip.activity.rawValue)
         ]

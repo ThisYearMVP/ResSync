@@ -7,8 +7,7 @@ struct MyTripsListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Fond transparent
-                Color.clear.ignoresSafeArea()
+                Color.clear
                 
                 if isLoading {
                     ProgressView()
@@ -34,7 +33,8 @@ struct MyTripsListView: View {
                 }
             }
             .navigationTitle("Mes Trajets")
-            .toolbarBackground(.hidden, for: .navigationBar) // Cache la barre de nav
+            .toolbarBackground(.clear, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .background(Color.clear)
             .refreshable {
                 await loadTrips()
@@ -45,6 +45,7 @@ struct MyTripsListView: View {
                 }
             }
         }
+        .background(Color.clear)
     }
     
     private func loadTrips() async {
@@ -98,7 +99,7 @@ struct TripCard: View {
             }
         }
         .padding()
-        .background(Color.white)
+        .background(Color.white.opacity(0.7)) // Un peu de transparence sur la carte
         .cornerRadius(15)
         .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
     }

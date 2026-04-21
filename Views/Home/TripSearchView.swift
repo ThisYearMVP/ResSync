@@ -14,7 +14,7 @@ struct TripSearchView: View {
         @Bindable var vm = viewModel
         NavigationStack {
             ZStack {
-                Color.clear.ignoresSafeArea()
+                Color.clear
                 
                 ScrollView {
                     VStack(spacing: 25) {
@@ -52,7 +52,7 @@ struct TripSearchView: View {
                                 CustomDatePicker(selection: $vm.date)
                             }
                             .padding()
-                            .background(.white.opacity(0.85))
+                            .background(.white.opacity(0.7))
                             .cornerRadius(20)
                             
                             if viewModel.transport == .train && !viewModel.availableRoutes.isEmpty {
@@ -64,7 +64,7 @@ struct TripSearchView: View {
                                 CustomActivityPicker(selection: $vm.activity)
                             }
                             .padding()
-                            .background(.white.opacity(0.85))
+                            .background(.white.opacity(0.7))
                             .cornerRadius(20)
                         }
                         .padding(.horizontal)
@@ -77,7 +77,8 @@ struct TripSearchView: View {
             }
             .navigationTitle("Nouveau Voyage")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar) // Cache la barre de nav
+            .toolbarBackground(.clear, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .background(Color.clear)
         }
         .background(Color.clear)
@@ -110,7 +111,6 @@ struct TripSearchView: View {
                     }
                 } catch {
                     print("Erreur sauvegarde : \(error)")
-                    // Afficher l'erreur réelle pour le débug
                     errorMessage = "Erreur: \(error.localizedDescription)"
                 }
                 isSaving = false
@@ -144,7 +144,7 @@ struct TripSearchView: View {
                     .onChange(of: text.wrappedValue) { Task { await viewModel.searchRealRoutes() } }
             }
             .padding()
-            .background(Color.gray.opacity(0.05))
+            .background(Color.white.opacity(0.1))
             .cornerRadius(12)
             
             if focusedField == field && !suggestions.isEmpty {
@@ -161,7 +161,7 @@ struct TripSearchView: View {
                     }
                 }
                 .padding()
-                .background(.white)
+                .background(.white.opacity(0.9))
                 .cornerRadius(12)
                 .shadow(radius: 5)
             }
@@ -180,7 +180,7 @@ struct TripSearchView: View {
                                 Text(route.train_number).font(.caption2)
                             }
                             .padding(.horizontal, 20).padding(.vertical, 10)
-                            .background(viewModel.selectedRoute == route ? Color.majorelleBlue : Color.gray.opacity(0.1))
+                            .background(viewModel.selectedRoute == route ? Color.majorelleBlue : Color.white.opacity(0.3))
                             .foregroundColor(viewModel.selectedRoute == route ? .white : .primary)
                             .cornerRadius(12)
                         }
@@ -189,7 +189,7 @@ struct TripSearchView: View {
             }
         }
         .padding()
-        .background(.white.opacity(0.85))
+        .background(.white.opacity(0.7))
         .cornerRadius(20)
     }
     
@@ -210,7 +210,7 @@ struct CustomDatePicker: View {
             Spacer()
         }
         .padding()
-        .background(Color.gray.opacity(0.05))
+        .background(Color.white.opacity(0.1))
         .cornerRadius(12)
     }
 }
@@ -233,7 +233,7 @@ struct CustomTransportPicker: View {
                 }
             }
         }
-        .background(Color.gray.opacity(0.05))
+        .background(Color.white.opacity(0.1))
         .cornerRadius(15)
     }
 }
@@ -251,7 +251,7 @@ struct CustomActivityPicker: View {
                         }
                         .padding(.horizontal, 15)
                         .padding(.vertical, 8)
-                        .background(selection == act ? Color.majorelleBlue : Color.gray.opacity(0.1))
+                        .background(selection == act ? Color.majorelleBlue : Color.white.opacity(0.3))
                         .foregroundColor(selection == act ? .white : .primary)
                         .cornerRadius(20)
                     }

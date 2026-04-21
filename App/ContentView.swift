@@ -4,13 +4,15 @@ struct ContentView: View {
     @State private var supabaseService = SupabaseService.shared
     @State private var selectedTab = 1
     @State private var tripsRefreshID = UUID()
+    @State private var phase = 1 // Variable d'état pour l'animation du fond
     
     var body: some View {
         Group {
             if !supabaseService.isInitialLoadComplete {
                 ZStack {
-                    AirplaneWindowBackground()
-                    ProgressView("Vérification de la session...")
+                    AirplaneWindowBackground(selection: 1)
+                        .ignoresSafeArea()
+                    ProgressView("Vérification...")
                         .tint(.majorelleBlue)
                         .padding()
                         .background(.ultraThinMaterial)
@@ -20,66 +22,45 @@ struct ContentView: View {
                 LoginView()
             } else {
                 ZStack {
-                    // 1. Fond global (doit être tout en bas)
-                    AirplaneWindowBackground(selection: selectedTab)
+                    // COUCHE INFÉRIEURE : Arrière-plan animé
+                    AirplaneWindowBackground(selection: phase)
                         .ignoresSafeArea()
+                        .animation(.easeInOut(duration: 0.6), value: phase)
                     
-                    // 2. TabView avec style de page pour le glissement continu
+                    // COUCHE SUPÉRIEURE : Contenu
                     TabView(selection: $selectedTab) {
                         MyProfileView()
+                            .background(Color.clear)
                             .tag(0)
                         
                         MyTripsListView()
                             .id(tripsRefreshID)
+                            .background(Color.clear)
                             .tag(1)
                         
                         TripSearchView(onTripAdded: {
                             tripsRefreshID = UUID()
                             selectedTab = 1
                         })
+                        .background(Color.clear)
                         .tag(2)
                     }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
-                    .ignoresSafeArea()
-                    
-                    // 3. TabBar personnalisée
-                    VStack {
-                        Spacer()
-                        HStack(spacing: 0) {
-                            tabButton(title: "Profil", icon: "person.crop.circle", tag: 0)
-                            tabButton(title: "Mes Trajets", icon: "suitcase.rolling.fill", tag: 1)
-                            tabButton(title: "Ajouter", icon: "plus.circle.fill", tag: 2)
-                        }
-                        .padding(.top, 10)
-                        .padding(.bottom, 25)
-                        .background(.ultraThinMaterial.opacity(0.8))
+                    .background(Color.clear)
+                    .onAppear {
+                        // Règle de transparence UITabBar
+                        let appearance = UITabBarAppearance()
+                        appearance.configureWithTransparentBackground()
+                        appearance.backgroundColor = UIColor.clear
+                        UITabBar.appearance().standardAppearance = appearance
+                        UITabBar.appearance().scrollEdgeAppearance = appearance
                     }
-                    .ignoresSafeArea()
                 }
-                .background(Color.clear)
-                .onAppear {
-                    UINavigationBar.appearance().backgroundColor = .clear
-                    UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
-                    UINavigationBar.appearance().shadowImage = UIImage()
+                .tint(.majorelleBlue)
+                .onChange(of: selectedTab) { _, newValue in
+                    // Piloter l'animation du fond
+                    phase = newValue
                 }
             }
-        }
-    }
-    
-    func tabButton(title: String, icon: String, tag: Int) -> some View {
-        Button(action: {
-            withAnimation(.spring()) {
-                selectedTab = tag
-            }
-        }) {
-            VStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.system(size: 20))
-                Text(title)
-                    .font(.caption2)
-            }
-            .frame(maxWidth: .infinity)
-            .foregroundColor(selectedTab == tag ? .majorelleBlue : .gray)
         }
     }
 }

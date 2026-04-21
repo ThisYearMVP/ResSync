@@ -11,75 +11,81 @@ struct AirplaneWindowBackground: View {
     
     var body: some View {
         ZStack {
-            // Fond ciel bleu dégradé statique
+            // Fond ciel bleu dégradé plus prononcé
             LinearGradient(
                 colors: [
-                    Color(red: 0.4, green: 0.7, blue: 1.0),
-                    Color.white
+                    Color(red: 0.2, green: 0.5, blue: 0.9), // Bleu plus profond en haut
+                    Color(red: 0.6, green: 0.8, blue: 1.0)  // Bleu clair en bas
                 ],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
+                startPoint: .top,
+                endPoint: .bottom
             )
             .ignoresSafeArea()
             
-            // Nuages qui bougent légèrement
+            // Nuages qui bougent
             GeometryReader { geo in
                 Circle()
-                    .fill(.white.opacity(0.4))
-                    .frame(width: 200, height: 200)
-                    .blur(radius: 50)
-                    .offset(x: -50 - CGFloat(selection) * 40, y: 100)
+                    .fill(.white.opacity(0.5))
+                    .frame(width: 250, height: 250)
+                    .blur(radius: 60)
+                    .offset(x: -100 - CGFloat(selection) * 60, y: 150)
                 
                 Circle()
-                    .fill(.white.opacity(0.3))
-                    .frame(width: 300, height: 300)
-                    .blur(radius: 60)
-                    .offset(x: geo.size.width * 0.5 - CGFloat(selection) * 20, y: geo.size.height * 0.6)
+                    .fill(.white.opacity(0.4))
+                    .frame(width: 350, height: 350)
+                    .blur(radius: 70)
+                    .offset(x: geo.size.width * 0.4 - CGFloat(selection) * 40, y: geo.size.height * 0.7)
             }
             
             // Cadre du hublot qui glisse
             GeometryReader { geo in
-                // Logique de glissement :
-                // selection 0 (Profil) -> Complètement à droite (invisible)
-                // selection 1 (Mes Trajets) -> Placé à l'extrême droite (on voit la moitié gauche)
-                // selection 2 (Ajouter) -> Placé à l'extrême gauche (on voit la moitié droite)
-                let width = geo.size.width * 0.9
-                let height = geo.size.height * 0.7
+                // selection 0 (Profil) -> Off-screen à droite
+                // selection 1 (Mes Trajets) -> Aligné à droite (moitié gauche visible)
+                // selection 2 (Ajouter) -> Aligné à gauche (moitié droite visible)
+                
+                let windowWidth = geo.size.width * 0.95
+                let windowHeight = geo.size.height * 0.75
                 
                 let targetX: CGFloat = {
                     switch selection {
                     case 0: return geo.size.width * 1.5
-                    case 1: return geo.size.width // Centre du hublot sur le bord droit
-                    case 2: return 0 // Centre du hublot sur le bord gauche
+                    case 1: return geo.size.width // Bord droit de l'écran = centre du hublot
+                    case 2: return 0 // Bord gauche de l'écran = centre du hublot
                     default: return geo.size.width * 1.5
                     }
                 }()
                 
                 ZStack {
-                    RoundedRectangle(cornerRadius: 140, style: .continuous)
+                    // Ombre interne simulée
+                    RoundedRectangle(cornerRadius: 150, style: .continuous)
+                        .fill(Color.black.opacity(0.05))
+                        .blur(radius: 10)
+                    
+                    // Cadre
+                    RoundedRectangle(cornerRadius: 150, style: .continuous)
                         .stroke(
                             LinearGradient(
-                                colors: [.white, Color.gray.opacity(0.4)],
+                                colors: [.white, Color.gray.opacity(0.5), .white],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
-                            lineWidth: 35
+                            lineWidth: 40
                         )
-                        .shadow(color: .black.opacity(0.15), radius: 20, x: -10, y: 10)
+                        .shadow(color: .black.opacity(0.2), radius: 15, x: -5, y: 10)
                     
-                    // Reflet sur la vitre
-                    RoundedRectangle(cornerRadius: 140, style: .continuous)
+                    // Reflet
+                    RoundedRectangle(cornerRadius: 150, style: .continuous)
                         .fill(
                             LinearGradient(
-                                colors: [.white.opacity(0.2), .clear],
+                                colors: [.white.opacity(0.2), .clear, .white.opacity(0.05)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                 }
-                .frame(width: width, height: height)
-                .position(x: targetX, y: geo.size.height * 0.45)
-                .animation(.spring(response: 0.7, dampingFraction: 0.8), value: selection)
+                .frame(width: windowWidth, height: windowHeight)
+                .position(x: targetX, y: geo.size.height * 0.48)
+                .animation(.spring(response: 0.8, dampingFraction: 0.85), value: selection)
             }
         }
         .allowsHitTesting(false)

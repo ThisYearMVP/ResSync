@@ -24,57 +24,62 @@ struct ContentView: View {
                     AirplaneWindowBackground(selection: selectedTab)
                         .ignoresSafeArea()
                     
+                    // 2. TabView avec style de page pour le glissement continu
                     TabView(selection: $selectedTab) {
                         MyProfileView()
-                            .tabItem {
-                                Label("Profil", systemImage: "person.crop.circle")
-                            }
                             .tag(0)
                         
                         MyTripsListView()
                             .id(tripsRefreshID)
-                            .tabItem {
-                                Label("Mes Trajets", systemImage: " suitcase.rolling.fill")
-                            }
                             .tag(1)
                         
                         TripSearchView(onTripAdded: {
                             tripsRefreshID = UUID()
                             selectedTab = 1
                         })
-                        .tabItem {
-                            Label("Ajouter", systemImage: "plus.circle.fill")
-                        }
                         .tag(2)
                     }
-                    // 2. Supprimer le fond de la TabView elle-même
-                    .scrollContentBackground(.hidden)
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .ignoresSafeArea()
+                    
+                    // 3. TabBar personnalisée
+                    VStack {
+                        Spacer()
+                        HStack(spacing: 0) {
+                            tabButton(title: "Profil", icon: "person.crop.circle", tag: 0)
+                            tabButton(title: "Mes Trajets", icon: "suitcase.rolling.fill", tag: 1)
+                            tabButton(title: "Ajouter", icon: "plus.circle.fill", tag: 2)
+                        }
+                        .padding(.top, 10)
+                        .padding(.bottom, 25)
+                        .background(.ultraThinMaterial.opacity(0.8))
+                    }
+                    .ignoresSafeArea()
                 }
-                .background(Color.clear) // S'assurer que le conteneur est transparent
-                .tint(.majorelleBlue)
+                .background(Color.clear)
                 .onAppear {
-                    // 3. Forcer UIKit à être transparent (Nuclear Option)
-                    let appearance = UITabBarAppearance()
-                    appearance.configureWithTransparentBackground()
-                    appearance.backgroundColor = .clear
-                    appearance.shadowColor = .clear
-                    UITabBar.appearance().standardAppearance = appearance
-                    UITabBar.appearance().scrollEdgeAppearance = appearance
-                    
-                    let navAppearance = UINavigationBarAppearance()
-                    navAppearance.configureWithTransparentBackground()
-                    navAppearance.backgroundColor = .clear
-                    navAppearance.shadowColor = .clear
-                    UINavigationBar.appearance().standardAppearance = navAppearance
-                    UINavigationBar.appearance().scrollEdgeAppearance = navAppearance
-                    
-                    // Désactiver les backgrounds par défaut des listes et tables
-                    UITableView.appearance().backgroundColor = .clear
-                    UITableView.appearance().backgroundView = nil
-                    UIView.appearance(whenContainedInInstancesOf: [UIAlertController.self]).tintColor = .systemBlue
+                    UINavigationBar.appearance().backgroundColor = .clear
+                    UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
+                    UINavigationBar.appearance().shadowImage = UIImage()
                 }
-                .animation(.spring(), value: selectedTab)
             }
+        }
+    }
+    
+    func tabButton(title: String, icon: String, tag: Int) -> some View {
+        Button(action: {
+            withAnimation(.spring()) {
+                selectedTab = tag
+            }
+        }) {
+            VStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 20))
+                Text(title)
+                    .font(.caption2)
+            }
+            .frame(maxWidth: .infinity)
+            .foregroundColor(selectedTab == tag ? .majorelleBlue : .gray)
         }
     }
 }

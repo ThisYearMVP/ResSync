@@ -11,6 +11,11 @@ struct RSSyncApp: App {
         UINavigationBar.appearance().setBackgroundImage(UIImage(), for: .default)
         UINavigationBar.appearance().shadowImage = UIImage()
         UINavigationBar.appearance().backgroundColor = .clear
+        UIScrollView.appearance().backgroundColor = .clear
+        UICollectionView.appearance().backgroundColor = .clear
+        
+        // Forcer la transparence des contrôleurs de navigation
+        UIView.appearance(whenContainedInInstancesOf: [UINavigationController.self]).backgroundColor = .clear
     }
     
     var body: some Scene {

@@ -5,7 +5,6 @@ struct ContentView: View {
     @State private var supabaseService = SupabaseService.shared
     @State private var selectedTab = 1
     @State private var tripsRefreshID = UUID()
-    @State private var showRevealAnimation = true // Pour l'animation de départ
     
     var body: some View {
         ZStack {
@@ -20,47 +19,50 @@ struct ContentView: View {
                     LoginView()
                         .onAppear { 
                             phase = 1 
-                            showRevealAnimation = false // Pas de reveal sur le login
                         }
                 } else {
                     mainMenuView
-                        .onAppear { phase = selectedTab }
                 }
-            }
-            
-            // L'avion qui découvre le menu
-            if supabaseService.isAuthenticated && showRevealAnimation {
-                AirplaneRevealView {
-                    showRevealAnimation = false
-                }
-                .zIndex(10)
             }
         }
     }
     
     var mainMenuView: some View {
         ZStack {
-            Color.clear
+            // Fond transparent pour le conteneur principal
+            Color.clear.ignoresSafeArea()
             
+            // Contenu des onglets
             TabView(selection: $selectedTab) {
                 MyProfileView()
-                    .background(Color.clear)
                     .tag(0)
                 
                 MyTripsListView()
                     .id(tripsRefreshID)
-                    .background(Color.clear)
                     .tag(1)
                 
                 TripSearchView(onTripAdded: {
                     tripsRefreshID = UUID()
                     selectedTab = 1
                 })
-                .background(Color.clear)
                 .tag(2)
             }
-            .background(Color.clear)
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .ignoresSafeArea()
+            
+            // TabBar personnalisée (transparente)
+            VStack {
+                Spacer()
+                HStack(spacing: 0) {
+                    tabButton(title: "Profil", icon: "person.crop.circle", tag: 0)
+                    tabButton(title: "Mes Trajets", icon: "suitcase.rolling.fill", tag: 1)
+                    tabButton(title: "Ajouter", icon: "plus.circle.fill", tag: 2)
+                }
+                .padding(.top, 10)
+                .padding(.bottom, 25)
+                .background(.ultraThinMaterial.opacity(0.3)) // Très léger pour voir le fond
+            }
+            .ignoresSafeArea()
         }
         .transition(.opacity)
         .onChange(of: selectedTab) { _, newValue in
@@ -68,6 +70,27 @@ struct ContentView: View {
                 phase = newValue
             }
         }
+        .onAppear {
+            phase = selectedTab
+        }
+    }
+    
+    func tabButton(title: String, icon: String, tag: Int) -> some View {
+        Button(action: {
+            withAnimation(.spring()) {
+                selectedTab = tag
+            }
+        }) {
+            VStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 20))
+                Text(title)
+                    .font(.caption2)
+            }
+            .frame(maxWidth: .infinity)
+            .foregroundColor(selectedTab == tag ? .majorelleBlue : .gray)
+        }
+        .buttonStyle(.plain)
     }
 }
 

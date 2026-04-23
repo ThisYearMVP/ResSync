@@ -8,47 +8,45 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            Group {
-                if !supabaseService.isInitialLoadComplete {
-                    ZStack {
-                        Color.clear
-                        ProgressView("Vérification...")
-                            .tint(.majorelleBlue)
-                    }
-                } else if !supabaseService.isAuthenticated {
-                    LoginView()
-                        .onAppear { 
-                            phase = 1 
-                        }
-                } else {
-                    mainMenuView
+            if !supabaseService.isInitialLoadComplete {
+                ZStack {
+                    Color.clear
+                    ProgressView("Vérification...")
+                        .tint(.majorelleBlue)
                 }
+            } else if !supabaseService.isAuthenticated {
+                LoginView()
+                    .background(Color.clear)
+                    .onAppear { phase = 1 }
+            } else {
+                mainMenuView
             }
         }
+        .background(Color.clear)
     }
     
     var mainMenuView: some View {
         ZStack {
-            // Fond transparent pour le conteneur principal
-            Color.clear.ignoresSafeArea()
-            
             // Contenu des onglets
             TabView(selection: $selectedTab) {
                 MyProfileView()
                     .tag(0)
+                    .background(Color.clear)
                 
                 MyTripsListView()
                     .id(tripsRefreshID)
                     .tag(1)
+                    .background(Color.clear)
                 
                 TripSearchView(onTripAdded: {
                     tripsRefreshID = UUID()
                     selectedTab = 1
                 })
                 .tag(2)
+                .background(Color.clear)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
-            .ignoresSafeArea()
+            .background(Color.clear)
             
             // TabBar personnalisée (transparente)
             VStack {
@@ -60,10 +58,11 @@ struct ContentView: View {
                 }
                 .padding(.top, 10)
                 .padding(.bottom, 25)
-                .background(.ultraThinMaterial.opacity(0.3)) // Très léger pour voir le fond
+                .background(.ultraThinMaterial.opacity(0.3))
             }
             .ignoresSafeArea()
         }
+        .background(Color.clear)
         .transition(.opacity)
         .onChange(of: selectedTab) { _, newValue in
             withAnimation(.easeInOut(duration: 0.6)) {

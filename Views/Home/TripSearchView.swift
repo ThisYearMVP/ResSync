@@ -14,7 +14,8 @@ struct TripSearchView: View {
         @Bindable var vm = viewModel
         NavigationStack {
             ZStack {
-                Color.clear
+                // Fond transparent
+                Color.clear.ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 25) {
@@ -52,7 +53,7 @@ struct TripSearchView: View {
                                 CustomDatePicker(selection: $vm.date)
                             }
                             .padding()
-                            .background(.white.opacity(0.7))
+                            .background(.ultraThinMaterial)
                             .cornerRadius(20)
                             
                             if viewModel.transport == .train && !viewModel.availableRoutes.isEmpty {
@@ -64,7 +65,7 @@ struct TripSearchView: View {
                                 CustomActivityPicker(selection: $vm.activity)
                             }
                             .padding()
-                            .background(.white.opacity(0.7))
+                            .background(.ultraThinMaterial)
                             .cornerRadius(20)
                         }
                         .padding(.horizontal)
@@ -77,8 +78,7 @@ struct TripSearchView: View {
             }
             .navigationTitle("Nouveau Voyage")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.clear, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .background(Color.clear)
         }
         .background(Color.clear)
@@ -161,7 +161,7 @@ struct TripSearchView: View {
                     }
                 }
                 .padding()
-                .background(.white.opacity(0.9))
+                .background(.ultraThinMaterial)
                 .cornerRadius(12)
                 .shadow(radius: 5)
             }
@@ -180,7 +180,7 @@ struct TripSearchView: View {
                                 Text(route.train_number).font(.caption2)
                             }
                             .padding(.horizontal, 20).padding(.vertical, 10)
-                            .background(viewModel.selectedRoute == route ? Color.majorelleBlue : Color.white.opacity(0.3))
+                            .background(viewModel.selectedRoute == route ? Color.majorelleBlue : Color.white.opacity(0.2))
                             .foregroundColor(viewModel.selectedRoute == route ? .white : .primary)
                             .cornerRadius(12)
                         }
@@ -189,7 +189,7 @@ struct TripSearchView: View {
             }
         }
         .padding()
-        .background(.white.opacity(0.7))
+        .background(.ultraThinMaterial)
         .cornerRadius(20)
     }
     
@@ -251,7 +251,7 @@ struct CustomActivityPicker: View {
                         }
                         .padding(.horizontal, 15)
                         .padding(.vertical, 8)
-                        .background(selection == act ? Color.majorelleBlue : Color.white.opacity(0.3))
+                        .background(selection == act ? Color.majorelleBlue : Color.white.opacity(0.2))
                         .foregroundColor(selection == act ? .white : .primary)
                         .cornerRadius(20)
                     }

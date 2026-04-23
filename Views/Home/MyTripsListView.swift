@@ -7,7 +7,8 @@ struct MyTripsListView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.clear
+                // Fond transparent pour laisser voir le rouge racine
+                Color.clear.ignoresSafeArea()
                 
                 if isLoading {
                     ProgressView()
@@ -33,8 +34,7 @@ struct MyTripsListView: View {
                 }
             }
             .navigationTitle("Mes Trajets")
-            .toolbarBackground(.clear, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .background(Color.clear)
             .refreshable {
                 await loadTrips()
@@ -99,7 +99,7 @@ struct TripCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.7)) // Un peu de transparence sur la carte
+        .background(.ultraThinMaterial)
         .cornerRadius(15)
         .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
     }

@@ -7,6 +7,7 @@ struct MyProfileView: View {
     var body: some View {
         NavigationStack {
             ZStack {
+                // Fond transparent
                 Color.clear.ignoresSafeArea()
                 
                 ScrollView {
@@ -30,7 +31,7 @@ struct MyProfileView: View {
                             }
                         }
                         .padding()
-                        .background(.white.opacity(0.7))
+                        .background(.ultraThinMaterial)
                         .cornerRadius(20)
                         
                         // Bio Section
@@ -43,7 +44,7 @@ struct MyProfileView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
-                        .background(.white.opacity(0.7))
+                        .background(.ultraThinMaterial)
                         .cornerRadius(20)
                         
                         // Actions Section
@@ -55,7 +56,7 @@ struct MyProfileView: View {
                                     Image(systemName: "chevron.right")
                                 }
                                 .padding()
-                                .background(.white.opacity(0.7))
+                                .background(.ultraThinMaterial)
                                 .cornerRadius(15)
                             }
                             .buttonStyle(.plain)

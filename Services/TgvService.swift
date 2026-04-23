@@ -14,8 +14,8 @@ class TgvService {
         
         let schedules: [TgvSchedule] = try await client.from("tgv_schedules")
             .select()
-            .ilike("origin", value: "%\(origin)%")
-            .ilike("destination", value: "%\(destination)%")
+            .ilike("origin", pattern: "%\(origin)%")
+            .ilike("destination", pattern: "%\(destination)%")
             .gte("departure_time", value: startOfDay.iso8601String)
             .lt("departure_time", value: endOfDay.iso8601String)
             .order("departure_time", ascending: true)

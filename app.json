@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "ResSync",
+    "slug": "ressync",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "ressync",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0B14"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.thisyearmvp.ressync"
+    },
+    "android": {
+      "package": "com.thisyearmvp.ressync"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "L'app accède à vos photos pour scanner votre billet."
+        }
+      ],
+      "expo-asset",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ressync-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "3333", "preview"],
+      "port": 3333
+    }
+  ]
+}

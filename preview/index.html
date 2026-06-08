@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResSync — Aperçu</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Rounded', 'Segoe UI', sans-serif;
+    background: #111;
+    color: white;
+    padding: 40px 20px;
+    overflow-x: hidden;
+  }
+
+  h1.page-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #fff;
+  }
+  .page-subtitle {
+    text-align: center;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 48px;
+    font-size: 14px;
+  }
+
+  .screens-row {
+    display: flex;
+    gap: 28px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 56px;
+  }
+
+  .screen-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .screen-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* iPhone frame */
+  .iphone {
+    width: 280px;
+    height: 580px;
+    border-radius: 44px;
+    border: 6px solid #2a2a2e;
+    background: #1c1c1e;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.08);
+  }
+  .iphone::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100px; height: 28px;
+    background: #2a2a2e;
+    border-radius: 0 0 18px 18px;
+    z-index: 100;
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ─── BACKGROUNDS ─────────────────────────── */
+  .bg-login {
+    background: linear-gradient(160deg, #f8f8fa 0%, #ececf0 100%);
+    color: #1c1c1e;
+  }
+  .bg-red {
+    background: linear-gradient(160deg, #d42b2b 0%, #1a1060 100%);
+  }
+  .bg-mode {
+    background: linear-gradient(160deg, #c72525 0%, #120d50 100%);
+  }
+
+  /* ─── UTILS ───────────────────────────────── */
+  .glass {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+  }
+  .glass-light {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 16px;
+    color: #1c1c1e;
+  }
+  .pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  /* ─── NOTCH SPACER ────────────────────────── */
+  .notch-space { height: 32px; }
+
+  /* ─── TAB BAR ─────────────────────────────── */
+  .tab-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 72px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: flex-start;
+    padding-top: 10px;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    font-size: 9px;
+    color: rgba(255,255,255,0.4);
+  }
+  .tab-item.active { color: white; }
+  .tab-icon { font-size: 18px; }
+
+  /* ─── LOGIN ───────────────────────────────── */
+  .login-logo-box {
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, #e53935, #c62828);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    margin: 0 auto 10px;
+    box-shadow: 0 8px 24px rgba(229,57,53,0.4);
+  }
+  .login-title { font-size: 28px; font-weight: 700; color: #1c1c1e; text-align: center; }
+  .login-sub   { font-size: 12px; color: #8e8e93; text-align: center; margin-bottom: 24px; }
+  .input-field {
+    background: #f2f2f7;
+    border-radius: 12px;
+    padding: 14px 14px;
+    font-size: 13px;
+    color: #1c1c1e;
+    margin-bottom: 10px;
+    border: 1.5px solid transparent;
+    position: relative;
+  }
+  .input-field.focused { border-color: rgba(229,57,53,0.5); }
+  .input-label { font-size: 9px; font-weight: 600; color: #e53935; display: block; margin-bottom: 2px; }
+  .input-value { font-size: 13px; color: #1c1c1e; }
+  .btn-red {
+    background: linear-gradient(135deg, #e53935, #c62828);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    box-shadow: 0 6px 20px rgba(229,57,53,0.35);
+    margin-top: 6px;
+  }
+  .btn-outline {
+    border: 1px solid #d1d1d6;
+    border-radius: 12px;
+    padding: 13px;
+    text-align: center;
+    font-size: 13px;
+    color: #1c1c1e;
+    margin-top: 8px;
+  }
+  .divider {
+    display: flex; align-items: center; gap: 8px;
+    margin: 12px 0;
+    font-size: 11px; color: #8e8e93;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: #d1d1d6;
+  }
+  .signup-link { text-align: center; font-size: 11px; color: #8e8e93; margin-top: 16px; }
+  .signup-link span { color: #e53935; font-weight: 600; }
+
+  /* ─── MY TRIPS ────────────────────────────── */
+  .screen-header {
+    padding: 12px 16px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .screen-header h2 { font-size: 26px; font-weight: 700; }
+  .screen-header .date { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .plus-btn {
+    width: 36px; height: 36px;
+    background: #2d28e6;
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 4px 14px rgba(45,40,230,0.4);
+  }
+  .trip-card {
+    margin: 0 12px 10px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .trip-icon {
+    width: 46px; height: 46px;
+    background: rgba(45,40,230,0.2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .trip-route { font-size: 13px; font-weight: 600; }
+  .trip-meta  { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 3px; }
+  .chevron { color: rgba(255,255,255,0.3); font-size: 12px; margin-left: auto; }
+
+  /* ─── MODE PICKER ─────────────────────────── */
+  .mode-question {
+    font-size: 22px; font-weight: 700;
+    text-align: center; padding: 0 20px;
+    line-height: 1.3;
+  }
+  .mode-sub {
+    font-size: 11px; color: rgba(255,255,255,0.5);
+    text-align: center; padding: 6px 24px 20px;
+  }
+  .mode-card {
+    margin: 0 14px 12px;
+    border-radius: 18px;
+    padding: 16px;
+    display: flex; align-items: center; gap: 14px;
+    border: 1.5px solid;
+  }
+  .mode-card.love {
+    background: rgba(255,80,60,0.12);
+    border-color: rgba(255,80,60,0.4);
+  }
+  .mode-card.work {
+    background: rgba(45,40,230,0.12);
+    border-color: rgba(45,40,230,0.3);
+  }
+  .mode-emoji-circle {
+    width: 50px; height: 50px; border-radius: 25px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  .love .mode-emoji-circle { background: linear-gradient(135deg, #ff5c3c, #ff1e5a); }
+  .work .mode-emoji-circle { background: linear-gradient(135deg, #2d28e6, #0a0f5c); }
+  .mode-label  { font-size: 15px; font-weight: 700; }
+  .mode-desc   { font-size: 10px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+  .mode-check  {
+    width: 24px; height: 24px; border-radius: 12px;
+    margin-left: auto; flex-shrink: 0;
+    border: 2px solid;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .love .mode-check  { border-color: rgba(255,80,60,0.6); }
+  .work .mode-check  { border-color: rgba(45,40,230,0.6); }
+  .mode-check.selected { background: rgba(255,80,60,0.8); border-color: transparent; }
+  .mode-check.selected::after { content: '✓'; font-size: 12px; color: white; font-weight: 700; }
+  .continue-btn {
+    margin: 8px 14px 0;
+    border-radius: 14px;
+    padding: 14px;
+    text-align: center;
+    font-size: 14px; font-weight: 600;
+    background: linear-gradient(135deg, #ff5c3c, #ff1e5a);
+    box-shadow: 0 6px 20px rgba(255,60,40,0.35);
+  }
+
+  /* ─── PEOPLE GRID ─────────────────────────── */
+  .people-tabs {
+    display: flex; gap: 0;
+    margin: 8px 14px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 3px;
+  }
+  .people-tab {
+    flex: 1; text-align: center;
+    padding: 6px 0; border-radius: 8px;
+    font-size: 11px; font-weight: 600;
+    color: rgba(255,255,255,0.4);
+  }
+  .people-tab.active {
+    background: rgba(255,255,255,0.12);
+    color: white;
+  }
+  .people-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 0 12px;
+  }
+  .person-card {
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .person-photo {
+    height: 100px;
+    position: relative;
+    display: flex; align-items: flex-end;
+    font-size: 32px;
+    justify-content: center;
+    padding-bottom: 4px;
+  }
+  .person-photo-bg {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+  }
+  .person-grad {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 50px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+  }
+  .person-info { padding: 8px 8px 6px; }
+  .person-name { font-size: 12px; font-weight: 600; }
+  .person-sub  { font-size: 9px; color: rgba(255,255,255,0.5); margin-bottom: 5px; }
+  .reactions   { display: flex; gap: 4px; }
+  .reaction-btn {
+    flex: 1; text-align: center;
+    background: rgba(255,255,255,0.07);
+    border-radius: 6px;
+    padding: 3px 0;
+    font-size: 12px;
+  }
+
+  /* ─── PROFILE ─────────────────────────────── */
+  .profile-header-card {
+    margin: 8px 12px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 18px;
+    padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .avatar-circle {
+    width: 58px; height: 58px; border-radius: 29px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; font-weight: 700;
+    flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.2);
+  }
+  .mode-toggle {
+    display: flex;
+    margin: 0 12px 8px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 3px;
+  }
+  .mode-toggle-btn {
+    flex: 1; text-align: center;
+    padding: 8px 0; border-radius: 11px;
+    font-size: 12px; font-weight: 600;
+    color: rgba(255,255,255,0.4);
+  }
+  .mode-toggle-btn.active-love {
+    background: linear-gradient(135deg, #ff5c3c, #ff1e5a);
+    color: white;
+  }
+  .mode-toggle-btn.active-work {
+    background: linear-gradient(135deg, #2d28e6, #0a0f5c);
+    color: white;
+  }
+  .info-card {
+    margin: 0 12px 8px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 12px;
+  }
+  .info-card-title {
+    font-size: 9px; font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .info-card-text { font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.5; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+  .chip {
+    padding: 3px 8px; border-radius: 10px;
+    font-size: 9px; font-weight: 600;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.8);
+  }
+
+  /* ─── CHAT ────────────────────────────────── */
+  .chat-header {
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .chat-avatar {
+    width: 36px; height: 36px; border-radius: 18px;
+    background: linear-gradient(135deg, #ff5c3c, #ff1e5a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700;
+  }
+  .chat-name { font-size: 14px; font-weight: 600; }
+  .chat-status { font-size: 10px; color: rgba(255,255,255,0.45); }
+  .chat-messages { padding: 12px; flex: 1; overflow: hidden; }
+  .bubble {
+    max-width: 75%;
+    padding: 9px 13px;
+    border-radius: 16px;
+    font-size: 11px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  .bubble.them {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 16px 16px 16px 4px;
+    float: left; clear: both;
+  }
+  .bubble.me {
+    background: linear-gradient(135deg, #2d28e6, #1a1080);
+    border-radius: 16px 16px 4px 16px;
+    float: right; clear: both;
+  }
+  .chat-input {
+    margin: 8px 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 22px;
+    padding: 9px 44px 9px 14px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    position: relative;
+  }
+  .send-btn {
+    position: absolute; right: 20px; bottom: 90px;
+    width: 32px; height: 32px; border-radius: 16px;
+    background: #2d28e6;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  /* ─── ADD TRIP ────────────────────────────── */
+  .scan-banner {
+    margin: 8px 12px;
+    background: rgba(45,40,230,0.15);
+    border: 1px solid rgba(45,40,230,0.3);
+    border-radius: 16px;
+    padding: 14px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .scan-icon-box {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(45,40,230,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .form-section {
+    margin: 0 12px 8px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .form-row {
+    padding: 11px 14px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    font-size: 12px;
+  }
+  .form-row:last-child { border-bottom: none; }
+  .form-icon { font-size: 14px; width: 18px; text-align: center; color: #2d28e6; }
+  .form-label { color: rgba(255,255,255,0.45); width: 60px; font-size: 10px; }
+  .form-value { color: white; font-weight: 500; }
+
+  section-title {
+    display: block;
+    font-size: 18px; font-weight: 700;
+    text-align: center;
+    margin: 32px 0 24px;
+    color: rgba(255,255,255,0.9);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding-top: 32px;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">🚂 ResSync</h1>
+<p class="page-subtitle">Aperçu complet de l'application — toutes les vues</p>
+
+<!-- ROW 1 -->
+<div class="screens-row">
+
+  <!-- LOGIN -->
+  <div class="screen-wrap">
+    <div class="screen-label">Connexion</div>
+    <div class="iphone">
+      <div class="screen bg-login">
+        <div class="notch-space"></div>
+        <div style="padding: 20px 20px 0;">
+          <div class="login-logo-box">🚂</div>
+          <div class="login-title">ResSync</div>
+          <div class="login-sub">Ton voisin de trajet t'attend.</div>
+          <div class="input-field focused">
+            <span class="input-label">ADRESSE E-MAIL</span>
+            <div class="input-value">thomas@exemple.com</div>
+          </div>
+          <div class="input-field">
+            <span class="input-label" style="color:#8e8e93">MOT DE PASSE</span>
+            <div class="input-value">••••••••</div>
+          </div>
+          <div style="text-align:right;font-size:10px;color:#8e8e93;margin-bottom:10px;">Mot de passe oublié ?</div>
+          <div class="btn-red">Se connecter</div>
+          <div class="divider">ou</div>
+          <div class="btn-outline">🌐 &nbsp;Continuer avec Google</div>
+          <div class="signup-link" style="margin-top:14px">Pas encore de compte ? <span>Créer un compte</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSCRIPTION -->
+  <div class="screen-wrap">
+    <div class="screen-label">Inscription — Étape 2/3</div>
+    <div class="iphone">
+      <div class="screen bg-login">
+        <div class="notch-space"></div>
+        <div style="padding: 8px 20px 0;">
+          <!-- Progress bar -->
+          <div style="display:flex;gap:5px;margin-bottom:16px;">
+            <div style="flex:1;height:3px;border-radius:2px;background:#e53935;"></div>
+            <div style="flex:1;height:3px;border-radius:2px;background:#e53935;"></div>
+            <div style="flex:1;height:3px;border-radius:2px;background:#d1d1d6;"></div>
+          </div>
+          <div style="font-size:22px;font-weight:700;color:#1c1c1e;margin-bottom:2px;">Qui es-tu ?</div>
+          <div style="font-size:11px;color:#8e8e93;margin-bottom:18px;">Ces infos restent privées</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <div class="input-field" style="flex:1;margin:0;">
+              <span class="input-label">PRÉNOM</span>
+              <div class="input-value">Thomas</div>
+            </div>
+            <div class="input-field" style="flex:1;margin:0;">
+              <span class="input-label">NOM</span>
+              <div class="input-value">Dupont</div>
+            </div>
+          </div>
+          <div class="input-field" style="margin-top:10px;">
+            <span class="input-label">NATIONALITÉ</span>
+            <div class="input-value">Français 🇫🇷</div>
+          </div>
+          <div class="input-field" style="margin-top:10px;">
+            <span class="input-label">ÂGE</span>
+            <div class="input-value" style="display:flex;justify-content:space-between;align-items:center;">
+              <span>28 ans</span>
+              <span style="display:flex;gap:10px;color:#8e8e93;font-size:18px;"><span>−</span><span style="color:#e53935;font-weight:700;">+</span></span>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;margin-top:24px;">
+            <div class="btn-red" style="width:fit-content;padding:12px 28px;border-radius:12px;">Continuer →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MES TRAJETS -->
+  <div class="screen-wrap">
+    <div class="screen-label">Mes Trajets</div>
+    <div class="iphone">
+      <div class="screen bg-red">
+        <div class="notch-space"></div>
+        <div class="screen-header">
+          <div>
+            <div style="font-size:26px;font-weight:700;">Mes Trajets</div>
+            <div class="date">Dimanche 8 juin</div>
+          </div>
+          <div class="plus-btn">+</div>
+        </div>
+        <div style="height:8px"></div>
+        <div class="trip-card">
+          <div class="trip-icon">🚄</div>
+          <div style="flex:1">
+            <div class="trip-route">Paris → Lyon</div>
+            <div class="trip-meta">8 juin · 14:32 · Parler</div>
+          </div>
+          <div class="chevron">›</div>
+        </div>
+        <div class="trip-card">
+          <div class="trip-icon">✈️</div>
+          <div style="flex:1">
+            <div class="trip-route">CDG → Nice</div>
+            <div class="trip-meta">15 juin · 09:10 · Travailler</div>
+          </div>
+          <div class="chevron">›</div>
+        </div>
+        <div class="trip-card" style="opacity:0.6">
+          <div class="trip-icon">🚄</div>
+          <div style="flex:1">
+            <div class="trip-route">Bordeaux → Paris</div>
+            <div class="trip-meta">22 juin · 18:05 · Se reposer</div>
+          </div>
+          <div class="chevron">›</div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab-item active"><div class="tab-icon">🧳</div>Mes Trajets</div>
+          <div class="tab-item"><div class="tab-icon">＋</div>Ajouter</div>
+          <div class="tab-item"><div class="tab-icon">👤</div>Profil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODE PICKER -->
+  <div class="screen-wrap">
+    <div class="screen-label">Choix du mode</div>
+    <div class="iphone">
+      <div class="screen bg-mode">
+        <div class="notch-space"></div>
+        <div style="padding:8px 16px 6px;display:flex;align-items:center;gap:8px;">
+          <div style="width:32px;height:32px;border-radius:16px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;">‹</div>
+          <div style="flex:1;text-align:center;">
+            <div style="font-size:13px;font-weight:600;">Paris → Lyon</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);">8 juin · 14:32</div>
+          </div>
+          <div style="width:32px;"></div>
+        </div>
+        <div style="height:28px;"></div>
+        <div class="mode-question">Comment tu voyages ?</div>
+        <div class="mode-sub">Choisis ton profil pour ce trajet</div>
+        <div class="mode-card love">
+          <div class="mode-emoji-circle">💛</div>
+          <div>
+            <div class="mode-label">Mode LOVE</div>
+            <div class="mode-desc">Rencontres et liens personnels</div>
+          </div>
+          <div class="mode-check selected"></div>
+        </div>
+        <div class="mode-card work">
+          <div class="mode-emoji-circle">💼</div>
+          <div>
+            <div class="mode-label">Mode WORK</div>
+            <div class="mode-desc">Networking et collaborations</div>
+          </div>
+          <div class="mode-check"></div>
+        </div>
+        <div class="continue-btn">💛 &nbsp;Continuer en mode LOVE</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ROW 2 -->
+<div class="screens-row">
+
+  <!-- PEOPLE GRID -->
+  <div class="screen-wrap">
+    <div class="screen-label">Voyageurs sur ce trajet</div>
+    <div class="iphone">
+      <div class="screen bg-red">
+        <div class="notch-space"></div>
+        <div style="padding:6px 14px 4px;display:flex;align-items:center;gap:8px;">
+          <div style="font-size:14px;opacity:0.6;">‹</div>
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:600;">💛 Paris → Lyon</div>
+            <div style="font-size:9px;color:rgba(255,255,255,0.45);">Mode LOVE · 8 juin</div>
+          </div>
+          <div style="padding:3px 8px;border-radius:10px;background:rgba(255,200,0,0.15);border:1px solid rgba(255,200,0,0.3);font-size:9px;font-weight:600;color:#ffd600;">LOVE</div>
+        </div>
+        <div class="people-tabs">
+          <div class="people-tab active">Voyageurs</div>
+          <div class="people-tab">Messages</div>
+        </div>
+        <div class="people-grid">
+          <div class="person-card">
+            <div class="person-photo" style="background:linear-gradient(135deg,#f06292,#e91e63);">
+              <div class="person-photo-bg">👩</div>
+              <div class="person-grad"></div>
+            </div>
+            <div class="person-info">
+              <div class="person-name">Léa, 24</div>
+              <div class="person-sub">🇫🇷 Française</div>
+              <div class="reactions">
+                <div class="reaction-btn">👋</div>
+                <div class="reaction-btn">☕</div>
+                <div class="reaction-btn">💬</div>
+              </div>
+            </div>
+          </div>
+          <div class="person-card">
+            <div class="person-photo" style="background:linear-gradient(135deg,#7986cb,#3949ab);">
+              <div class="person-photo-bg">👩‍🎨</div>
+              <div class="person-grad"></div>
+            </div>
+            <div class="person-info">
+              <div class="person-name">Elena, 26</div>
+              <div class="person-sub">🇮🇹 Italienne</div>
+              <div class="reactions">
+                <div class="reaction-btn">👋</div>
+                <div class="reaction-btn">☕</div>
+                <div class="reaction-btn">💬</div>
+              </div>
+            </div>
+          </div>
+          <div class="person-card">
+            <div class="person-photo" style="background:linear-gradient(135deg,#4db6ac,#00897b);">
+              <div class="person-photo-bg">👨</div>
+              <div class="person-grad"></div>
+            </div>
+            <div class="person-info">
+              <div class="person-name">Marc, 31</div>
+              <div class="person-sub">🇨🇭 Suisse</div>
+              <div class="reactions">
+                <div class="reaction-btn">👋</div>
+                <div class="reaction-btn">☕</div>
+                <div class="reaction-btn">💬</div>
+              </div>
+            </div>
+          </div>
+          <div class="person-card">
+            <div class="person-photo" style="background:linear-gradient(135deg,#ffb74d,#fb8c00);">
+              <div class="person-photo-bg">👩‍💻</div>
+              <div class="person-grad"></div>
+            </div>
+            <div class="person-info">
+              <div class="person-name">Sophie, 27</div>
+              <div class="person-sub">🇧🇪 Belge</div>
+              <div class="reactions">
+                <div class="reaction-btn">👋</div>
+                <div class="reaction-btn">☕</div>
+                <div class="reaction-btn">💬</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab-item active"><div class="tab-icon">🧳</div>Mes Trajets</div>
+          <div class="tab-item"><div class="tab-icon">＋</div>Ajouter</div>
+          <div class="tab-item"><div class="tab-icon">👤</div>Profil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFIL DETAIL SHEET -->
+  <div class="screen-wrap">
+    <div class="screen-label">Profil d'un voyageur</div>
+    <div class="iphone">
+      <div class="screen bg-red">
+        <div style="height:0"></div>
+        <!-- Photo -->
+        <div style="position:relative;height:200px;background:linear-gradient(135deg,#f06292,#ad1457);display:flex;align-items:center;justify-content:center;font-size:72px;">
+          👩
+          <div style="position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(0,0,0,0.7));"></div>
+          <div style="position:absolute;bottom:14px;left:16px;">
+            <div style="font-size:22px;font-weight:700;">Léa</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.7);">24 ans · 🇫🇷 Française</div>
+          </div>
+          <div style="position:absolute;top:44px;right:14px;width:30px;height:30px;border-radius:15px;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:13px;">✕</div>
+        </div>
+        <!-- Content -->
+        <div style="padding:12px 14px 0;">
+          <div class="info-card" style="margin:0 0 8px;">
+            <div class="info-card-title">À propos</div>
+            <div class="info-card-text">Passionnée de tech et de rando. Curieuse de tout !</div>
+          </div>
+          <div class="info-card" style="margin:0 0 10px;">
+            <div class="info-card-title">Centres d'intérêt</div>
+            <div class="chips">
+              <div class="chip">Tech</div><div class="chip">Randonnée</div>
+              <div class="chip">IA</div><div class="chip">Photo</div>
+            </div>
+          </div>
+          <div style="background:linear-gradient(135deg,#ff5c3c,#ff1e5a);border-radius:14px;padding:13px;text-align:center;font-size:13px;font-weight:600;box-shadow:0 5px 18px rgba(255,50,30,0.35);">
+            💬 &nbsp;Envoyer un message
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="screen-wrap">
+    <div class="screen-label">Messagerie</div>
+    <div class="iphone">
+      <div class="screen bg-red">
+        <div class="notch-space"></div>
+        <div class="chat-header">
+          <div style="font-size:14px;opacity:0.6;">‹</div>
+          <div class="chat-avatar">L</div>
+          <div>
+            <div class="chat-name">Léa</div>
+            <div class="chat-status">Paris → Lyon · En ligne</div>
+          </div>
+          <div style="margin-left:auto;font-size:18px;opacity:0.5;">⋯</div>
+        </div>
+        <div class="chat-messages" style="padding:14px;height:370px;">
+          <div class="bubble them">Salut ! Tu vas à Lyon aussi ? 😊</div>
+          <div class="bubble me">Oui, pour le boulot ! Et toi ?</div>
+          <div class="bubble them">Pareil ! Je suis en voiture 4, siège 22.</div>
+          <div class="bubble me">Super ! On se retrouve sur le quai ?</div>
+          <div class="bubble them" style="display:flex;align-items:center;gap:5px;">
+            <span style="animation:pulse 1s infinite;display:inline-block;">●</span>
+            <span style="opacity:0.5;font-size:10px;">en train d'écrire...</span>
+          </div>
+        </div>
+        <div style="position:relative;padding:0 12px 12px;">
+          <div class="chat-input">Message...</div>
+          <div style="position:absolute;right:20px;top:2px;width:30px;height:30px;border-radius:15px;background:#2d28e6;display:flex;align-items:center;justify-content:center;font-size:13px;">➤</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFIL -->
+  <div class="screen-wrap">
+    <div class="screen-label">Mon Profil</div>
+    <div class="iphone">
+      <div class="screen bg-red">
+        <div class="notch-space"></div>
+        <div style="padding:6px 16px 8px;font-size:22px;font-weight:700;">Mon Profil</div>
+        <div class="profile-header-card">
+          <div class="avatar-circle" style="background:linear-gradient(135deg,#ff5c3c,#ff1e5a);">T</div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:700;">Thomas</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.5);">28 ans · 🇫🇷 Français</div>
+          </div>
+          <div style="width:32px;height:32px;border-radius:16px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:13px;">✏️</div>
+        </div>
+        <div class="mode-toggle">
+          <div class="mode-toggle-btn active-love">💛 LOVE</div>
+          <div class="mode-toggle-btn">💼 WORK</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">À propos</div>
+          <div class="info-card-text">Passionné de tech et de voyages. Toujours partant pour une bonne conversation !</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">Centres d'intérêt</div>
+          <div class="chips">
+            <div class="chip">Tech</div><div class="chip">Voyage</div>
+            <div class="chip">IA</div><div class="chip">Lecture</div><div class="chip">Sport</div>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab-item"><div class="tab-icon">🧳</div>Mes Trajets</div>
+          <div class="tab-item"><div class="tab-icon">＋</div>Ajouter</div>
+          <div class="tab-item active"><div class="tab-icon">👤</div>Profil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ROW 3 -->
+<div class="screens-row">
+
+  <!-- ADD TRIP -->
+  <div class="screen-wrap">
+    <div class="screen-label">Ajouter un voyage</div>
+    <div class="iphone">
+      <div class="screen bg-red">
+        <div class="notch-space"></div>
+        <div style="padding:6px 16px 10px;">
+          <div style="font-size:22px;font-weight:700;margin-bottom:2px;">Ajouter un voyage</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.45);">Saisis ou scanne ton billet</div>
+        </div>
+        <div class="scan-banner">
+          <div class="scan-icon-box">🎟️</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;">Scanner mon billet</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);">Photo → infos remplies automatiquement</div>
+          </div>
+          <div style="font-size:12px;opacity:0.4;">›</div>
+        </div>
+        <div class="form-section" style="margin-top:10px;">
+          <div class="form-row">
+            <div class="form-icon">🔵</div>
+            <div class="form-label">Départ</div>
+            <div class="form-value">Paris Gare de Lyon</div>
+          </div>
+          <div class="form-row">
+            <div class="form-icon">📍</div>
+            <div class="form-label">Arrivée</div>
+            <div class="form-value">Lyon Part-Dieu</div>
+          </div>
+          <div class="form-row">
+            <div class="form-icon">📅</div>
+            <div class="form-label">Date</div>
+            <div class="form-value">Dim. 8 juin 2025</div>
+          </div>
+        </div>
+        <!-- Horaires TGV -->
+        <div style="margin:0 12px 8px;">
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Horaires TGV</div>
+          <div style="display:flex;gap:6px;overflow:hidden;">
+            <div style="background:#2d28e6;border-radius:10px;padding:7px 12px;text-align:center;">
+              <div style="font-size:13px;font-weight:700;">14:32</div>
+              <div style="font-size:9px;opacity:0.7;">TGV 6231</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:7px 12px;text-align:center;">
+              <div style="font-size:13px;font-weight:700;">16:05</div>
+              <div style="font-size:9px;opacity:0.7;">TGV 6245</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:7px 12px;text-align:center;">
+              <div style="font-size:13px;font-weight:700;">18:32</div>
+              <div style="font-size:9px;opacity:0.7;">OUI 8812</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin:8px 12px 0;background:#2d28e6;border-radius:14px;padding:13px;text-align:center;font-size:13px;font-weight:600;box-shadow:0 5px 18px rgba(45,40,230,0.4);">
+          ✓ &nbsp;Enregistrer ce voyage
+        </div>
+        <div class="tab-bar">
+          <div class="tab-item"><div class="tab-icon">🧳</div>Mes Trajets</div>
+          <div class="tab-item active"><div class="tab-icon">＋</div>Ajouter</div>
+          <div class="tab-item"><div class="tab-icon">👤</div>Profil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCAN BILLET -->
+  <div class="screen-wrap">
+    <div class="screen-label">Scanner un billet</div>
+    <div class="iphone">
+      <div class="screen" style="background:rgba(0,0,0,0.92);">
+        <div class="notch-space"></div>
+        <div style="padding:8px 20px 20px;text-align:center;">
+          <div style="font-size:20px;font-weight:700;margin-bottom:6px;">Scanne ton billet</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:24px;">SNCF · OUIGO · Thalys · Avion</div>
+          <!-- Frame de scan -->
+          <div style="position:relative;margin:0 auto 20px;width:220px;height:150px;">
+            <div style="position:absolute;inset:0;border-radius:14px;border:1.5px solid rgba(45,40,230,0.4);background:rgba(45,40,230,0.06);"></div>
+            <!-- Coins -->
+            <div style="position:absolute;top:10px;left:10px;width:20px;height:20px;border-top:3px solid #2d28e6;border-left:3px solid #2d28e6;border-radius:3px 0 0 0;"></div>
+            <div style="position:absolute;top:10px;right:10px;width:20px;height:20px;border-top:3px solid #2d28e6;border-right:3px solid #2d28e6;border-radius:0 3px 0 0;"></div>
+            <div style="position:absolute;bottom:10px;left:10px;width:20px;height:20px;border-bottom:3px solid #2d28e6;border-left:3px solid #2d28e6;border-radius:0 0 0 3px;"></div>
+            <div style="position:absolute;bottom:10px;right:10px;width:20px;height:20px;border-bottom:3px solid #2d28e6;border-right:3px solid #2d28e6;border-radius:0 0 3px 0;"></div>
+            <!-- Faisceau -->
+            <div style="position:absolute;left:10px;right:10px;top:60px;height:2px;background:linear-gradient(90deg,transparent,rgba(45,40,230,0.8),transparent);border-radius:1px;"></div>
+          </div>
+          <!-- Résultat extrait -->
+          <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(45,40,230,0.3);border-radius:14px;padding:12px;text-align:left;margin-bottom:14px;">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+              <span style="font-size:16px;">✅</span>
+              <div>
+                <div style="font-size:12px;font-weight:600;">Billet reconnu</div>
+                <div style="font-size:9px;color:#4caf50;">Confiance : 96%</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:auto 1fr;gap:5px 10px;font-size:10px;">
+              <span style="color:rgba(255,255,255,0.4);">Départ</span><span style="font-weight:600;">Paris Gare de Lyon</span>
+              <span style="color:rgba(255,255,255,0.4);">Arrivée</span><span style="font-weight:600;">Lyon Part-Dieu</span>
+              <span style="color:rgba(255,255,255,0.4);">Train</span><span style="font-weight:600;">TGV 6231</span>
+              <span style="color:rgba(255,255,255,0.4);">Siège</span><span style="font-weight:600;">Voiture 4 · 22A</span>
+            </div>
+          </div>
+          <div style="background:#2d28e6;border-radius:13px;padding:12px;text-align:center;font-size:13px;font-weight:600;box-shadow:0 5px 18px rgba(45,40,230,0.4);margin-bottom:8px;">
+            ✓ &nbsp;Utiliser ce billet
+          </div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);">Rescanner</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFIL WORK -->
+  <div class="screen-wrap">
+    <div class="screen-label">Profil WORK</div>
+    <div class="iphone">
+      <div class="screen bg-red">
+        <div class="notch-space"></div>
+        <div style="padding:6px 16px 8px;font-size:22px;font-weight:700;">Mon Profil</div>
+        <div class="profile-header-card">
+          <div class="avatar-circle" style="background:linear-gradient(135deg,#2d28e6,#0a0f5c);">T</div>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:700;">Thomas Dupont</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);">Product Manager @ Airbus</div>
+          </div>
+          <div style="width:32px;height:32px;border-radius:16px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:13px;">✏️</div>
+        </div>
+        <div class="mode-toggle">
+          <div class="mode-toggle-btn">💛 LOVE</div>
+          <div class="mode-toggle-btn active-work">💼 WORK</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">Bio professionnelle</div>
+          <div class="info-card-text">Product Manager dans l'aéronautique. 5 ans d'expérience en design thinking et agile.</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">Compétences</div>
+          <div class="chips">
+            <div class="chip" style="background:rgba(45,40,230,0.2);color:#90caf9;">Product</div>
+            <div class="chip" style="background:rgba(45,40,230,0.2);color:#90caf9;">Agile</div>
+            <div class="chip" style="background:rgba(45,40,230,0.2);color:#90caf9;">Design</div>
+            <div class="chip" style="background:rgba(45,40,230,0.2);color:#90caf9;">Data</div>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab-item"><div class="tab-icon">🧳</div>Mes Trajets</div>
+          <div class="tab-item"><div class="tab-icon">＋</div>Ajouter</div>
+          <div class="tab-item active"><div class="tab-icon">👤</div>Profil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MESSAGES LIST -->
+  <div class="screen-wrap">
+    <div class="screen-label">Mes conversations</div>
+    <div class="iphone">
+      <div class="screen bg-red">
+        <div class="notch-space"></div>
+        <div style="padding:6px 16px 10px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:22px;font-weight:700;">Messages</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);">Paris → Lyon</div>
+        </div>
+        <!-- Rows -->
+        <div style="margin:0 12px 6px;padding:12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:16px;display:flex;align-items:center;gap:12px;">
+          <div style="width:48px;height:48px;border-radius:24px;background:linear-gradient(135deg,#f06292,#e91e63);display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid #ffd600;flex-shrink:0;">👩</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <div style="font-size:13px;font-weight:600;">Léa</div>
+              <div style="font-size:9px;color:#ffd600;font-weight:600;">14:32</div>
+            </div>
+            <div style="font-size:10px;color:white;font-weight:500;">On se retrouve sur le quai ? 👋</div>
+          </div>
+          <div style="width:9px;height:9px;border-radius:5px;background:#2d28e6;flex-shrink:0;"></div>
+        </div>
+        <div style="margin:0 12px 6px;padding:12px;background:rgba(255,255,255,0.05);border-radius:16px;display:flex;align-items:center;gap:12px;">
+          <div style="width:48px;height:48px;border-radius:24px;background:linear-gradient(135deg,#4db6ac,#00897b);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">👨</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <div style="font-size:13px;font-weight:600;">Marc</div>
+              <div style="font-size:9px;color:rgba(255,255,255,0.4);">12:08</div>
+            </div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.5);">Top ! Je suis en voiture 4.</div>
+          </div>
+        </div>
+        <div style="margin:0 12px 6px;padding:12px;background:rgba(255,255,255,0.05);border-radius:16px;display:flex;align-items:center;gap:12px;">
+          <div style="width:48px;height:48px;border-radius:24px;background:linear-gradient(135deg,#ffb74d,#fb8c00);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:2px solid #ffd600;">👩‍💻</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+              <div style="font-size:13px;font-weight:600;">Sophie</div>
+              <div style="font-size:9px;color:#ffd600;font-weight:600;">Hier</div>
+            </div>
+            <div style="font-size:10px;color:white;font-weight:500;">Tu joues à quoi en ce moment ?</div>
+          </div>
+          <div style="width:9px;height:9px;border-radius:5px;background:#2d28e6;flex-shrink:0;"></div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab-item active"><div class="tab-icon">🧳</div>Mes Trajets</div>
+          <div class="tab-item"><div class="tab-icon">＋</div>Ajouter</div>
+          <div class="tab-item"><div class="tab-icon">👤</div>Profil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
